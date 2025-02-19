@@ -1,5 +1,24 @@
 def step_scheduler_instruction(_group_name, _input_format, _output_format):
     _instruction = f"""
+As a {_group_name} scheduler, you will receive step workflows and initial user requests. The input format is as follows:
+
+You will receive a JSON-formatted step planning result <plan_graph> and a general task description <main_task> from the task_planner.
+The input format is:
+{_input_format}
+
+You need to first read the completed steps you have memorized from completed_steps.json and update them. Read the context information from the previous step completion process from context_index.json, and consider the next steps to be completed in combination with the general task description step by step to ensure the completion of the general task.
+
+Note: You should read completed_steps.json and context_index.json every time you receive input.
+
+You need to select all executable steps for the next step based on completed steps and context information, ensuring that they can be executed in parallel; if two steps can start executing at the same time without conflicting with each other, they can be executed in parallel.
+
+Your final scheduling result should be:
+{_output_format}
+
+You need to fill in the "reason" field with the reasons for selecting these steps.
+    """
+    
+    f"""
     作为{_group_name}调度者，你将接收到step流程和初始用户请求，输入格式如下:  
     你将从task_planner那里收到一个 JSON 格式的step规划结果 <plan_graph> 和总任务描述 <main_task>。
     输入格式为:

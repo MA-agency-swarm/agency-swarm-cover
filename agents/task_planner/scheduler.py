@@ -3,7 +3,7 @@ from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 _name = "scheduler"
 
 _description = """
-职责是调度任务
+The responsibility is to schedule tasks.
 """
 
 _input_format = """
@@ -11,10 +11,10 @@ _input_format = """
     "main_task": ...,
     "plan_graph": {
         "task_1": {
-            "title": 任务名称,
-            "id": 任务ID, 
-            "description": 任务描述, 
-            "dep": <前置任务ID列表>,
+            "title": "Task Name",
+            "id": "Task ID",
+            "description": "Task Description",
+            "dep": "<List of predecessor task IDs>",
         },
         ...
     }
@@ -30,6 +30,24 @@ _output_format = """
 """
 
 _instruction = f"""
+As a scheduler, you will receive subtask workflows and initial user requests, with the following input format:
+You will receive a JSON-formatted subtask planning result <plan_graph> and a general task description <main_task>.
+The input format is:
+{_input_format}
+
+You need to read the completed tasks from completed_tasks.json, read the context information from the previous task completion process from context_index.json, and consider the next subtasks to be completed in combination with the general task description step by step to ensure the completion of the general task.
+
+Note: You should read completed_tasks.json and context_index.json every time you receive input.
+
+You need to select all executable tasks for the next step based on completed tasks and context information, ensuring that they can be executed in parallel; if two tasks can start executing at the same time without conflicting with each other, they can be executed in parallel.
+
+Your final scheduling result should be:
+{_output_format}
+
+You need to fill in the "reason" field with the reasons for selecting these tasks.
+"""
+
+f"""
 作为调度者，你将接收到子任务流程和初始用户请求，输入格式如下:  
 你将收到一个 JSON 格式的子任务规划结果 <plan_graph> 和总任务描述 <main_task>。
 输入格式为:

@@ -3,18 +3,18 @@ from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 _name = "subtask_scheduler"
 
 _description = """
-职责是调度子任务
+The responsibility is to schedule subtasks.
 """
 _input_format = """
 {
     "main_task": ...,
     "plan_graph": {
         "subtask_1": {
-            "title": 子任务名称,
-            "id": 子任务ID, 
-            "capability_group": <所需能力群名称>
-            "description": 子任务描述, 
-            "dep": <前置子任务ID列表>,
+            "title": "Subtask Name",
+            "id": "Subtask ID",
+            "capability_group": "<Name of required capability group>",
+            "description": "Subtask Description",
+            "dep": "<List of predecessor subtask IDs>",
         },
         ...
     }
@@ -30,6 +30,25 @@ _output_format = """
 """
 
 _instruction = f"""
+As a scheduler, you will receive subtask workflows and initial user requests, with the following input format:
+You will receive a JSON-formatted subtask planning result <plan_graph> and a general task description <main_task>.
+The input format is:
+{_input_format}
+
+You need to read the completed subtasks from completed_sub_tasks.json, read the context information from the previous subtask completion process from context_index.json, and consider the next subtasks to be completed in combination with the general task description step by step to ensure the completion of the general task.
+
+Note: You should read completed_sub_tasks.json and context_index.json every time you receive input.
+
+You need to select all executable subtasks for the next step based on completed subtasks and context information, ensuring that they can be **executed in parallel**; if two subtasks can start executing at the same time without conflicting with each other, they can be executed in parallel.
+
+Your final scheduling result should be:
+{_output_format}
+
+You need to fill in the "reason" field with the reasons for selecting these subtasks.
+
+"""
+
+f"""
 作为调度者，你将接收到子任务流程和初始用户请求，输入格式如下:  
 你将收到一个 JSON 格式的子任务规划结果 <plan_graph> 和总任务描述 <main_task>。
 输入格式为:
