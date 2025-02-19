@@ -5,31 +5,72 @@ from agents.tools.read_context_index.ReadContextIndex import ReadContextIndex
 _name = "subtask_planner"
 
 _description = """
-职责是将任务按能力群拆分成子任务
+The responsibility is to break down tasks into subtasks by capability groups.
 """
 
 _input_format = """
 {
-    "total_task_graph": <所有任务规划图>
-    "title": <任务名称>,
-    "description": <任务描述>,
+    "total_task_graph": "<All task planning graph>",
+    "title": "<Task name>",
+    "description": "<Task description>",
 }
 """
 
 _output_format = """
 {
     "subtask_1": {
-        "title": 任务名称,
-        "id": 任务ID, 
-        "capability_group": <能力群名称>,
-        "description": 任务描述, 
-        "dep": <前置任务ID列表>,
+        "title": "Task Name",
+        "id": "Task ID",
+        "capability_group": "<Capability group name>",
+        "description": "Task Description",
+        "dep": "<List of predecessor task IDs>",
     },
     ...
 }
 """
 
 _instruction = f"""
+As a subtask planner, you will receive a task and attempt to plan for it step by step.
+
+The input format is as follows:
+{_input_format}
+
+Among them, the "title" and "description" fields describe the task that needs to be planned this time, and "total_subtask_graph" will describe the planning graph of all tasks, including task information and dependencies, to ensure that your next planning does not conflict or overlap with other tasks.
+
+At the same time, you need to read from context_index.json and update the context information in the existing environment in your memory.
+Note: You need to read context_index.json every time you receive input.
+
+You need to think step by step, and split the task according to the task description. You need to ensure that:
+1. Each subtask is completed by one and only one capability group;
+2. Subtasks cannot deviate from the task objective.
+
+The existing capability group names and introductions are as follows:
+"操作系统管理能力群": This operating system management capability group provides the ability to remotely connect to ECS via SSH to execute commands;
+"弹性云服务器(ECS)管理能力群": The ECS management capability group provides comprehensive ECS instance management functions, including core operations such as creation, deletion, query, modification, migration, startup, stop, and restart, as well as extended functions such as cloning, specification recommendation, network card and hard disk configuration;
+"镜像管理能力群": Responsible for Huawei Cloud image resource management tasks, including: querying the image list, updating image information, creating images, quickly importing image files, using external image files to create data images, creating whole machine images, registering images, exporting images, and querying the list of OSs supported by images.
+"VPC网络管理能力群": The VPC network management capability group provides management functions for virtual private clouds (VPCs), including creating, deleting, and modifying VPCs; creating, deleting, and modifying subnets; configuring security group rules to control network traffic;
+"云硬盘EVS管理能力群": The EVS management capability group provides comprehensive management of cloud disks, including cloud disk management functions such as creation, deletion, query, update, capacity expansion, and QoS configuration, as well as snapshot management functions for creating, deleting, updating, and querying cloud disk snapshots;
+"云监控CES能力群": The CES management capability group provides comprehensive management of cloud monitoring services, including cloud resource monitoring capabilities such as monitoring data management, monitoring dashboard management, and indicator description query, as well as event alarm capabilities such as cloud event monitoring management and alarm rule management.
+"简单任务处理能力群": Responsible for processing simple tasks (that is, no need to perform operations), such as making choices or decisions.
+
+You should use the following JSON format for subtask planning:
+{_output_format}
+
+Please think step by step, users may provide modification suggestions, and comprehensively consider the steps required to complete this task.
+# Note: Each task after splitting cannot be terminated halfway during the completion process;
+# Note: The id filled in the "dep" field of each subtask must be a subtask existing in the planning in the current output
+# Note: The resources in the initial environment are sufficient, and you do not need to query whether the resources in the available area are sufficient to execute the task;
+# Note: All information entered by the user and context.json is correct by default, and you do not need to plan steps to confirm whether the information is correct;
+# Note: Unless the user request or the context information of the context provides a description of the environmental conditions, **no resources** are created in the initial environment, and no **resource and environment information** is provided; ensure that your plan has the steps of **creating the required resources** or **obtaining the required information** in your task, otherwise please complete them first;
+# Note: In order to prevent user privacy from being leaked, the Huawei Cloud authentication information has been learned by the agent executing the task, and you do not need to obtain authentication information such as Huawei Cloud access credentials;
+
+For each subtask, you need to assign it a separate subtask ID in the form of "subtask_positive integer" in the "id" field, fill in the name of the capability group required to complete the subtask in the "capability_group" field, describe the task content in the "description" field, and write the list of predecessor subtask IDs that need to be completed in the "dep" field (if there is no predecessor task, write []), allowing the construction of rings, indicating that these subtasks need to be executed multiple times.
+Make sure your subtask planning is as parallel as possible. If two subtasks can start executing at the same time without conflicting with each other, they can be executed in parallel.
+Please note that no matter what the subtask is, the subtask execution process can only be operated by calling the api or ssh remote command line connection or writing and running scripts.
+
+"""
+
+f"""
 作为子任务规划者，你将接收到一个任务，并尝试一步步对该任务做规划
 
 输入格式如下: 

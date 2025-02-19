@@ -5,21 +5,21 @@ from agents.tools.ask_user.AskUser import AskUser
 _name = "subtask_manager"
 
 _description = """
-职责是负责能力群之间的消息管理
+The responsibility is to manage messages between capability groups.
 """
 
 _input_format = """
 {
     "result": "QUERY",
-    "context": <请求内容>
+    "context": "<Request content>"
 }
 """
 
 _instruction = f"""
-作为子任务规划者，你将接收到来自某个能力群manager的消息请求，请求格式如下:
+As a subtask planner, you will receive a message request from a capability group manager. The request format is as follows:
 {_input_format}
-一步步思考，你应该根据请求内容选择合适的能力群manager进行询问并返回结果，如果没有合适的能力群manager，请通过`AskUser`向用户直接询问如何回答请求并返回结果
 
+Thinking step by step, you should select the appropriate capability group manager to inquire based on the request content and return the results. If there is no suitable capability group manager, please use AskUser to directly ask the user how to answer the request and return the results.
 """
 
 

@@ -3,7 +3,7 @@ from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 _name = "task_planner"
 
 _description = """
-职责是根据用户请求规划任务
+The responsibility is to plan tasks according to user requests.
 """
 _input_format = """
 """
@@ -11,16 +11,36 @@ _input_format = """
 _output_format = """
 {
     "task_1": {
-        "title": 任务名称,
-        "id": 任务ID, 
-        "description": 任务的详细描述, 
-        "dep": <前置任务ID列表>,
+        "title": "Task Name",
+        "id": "Task ID",
+        "description": "Detailed description of the task",
+        "dep": "<List of predecessor task IDs>",
     },
     ...
 }
 """
 
 _instruction = f"""
+As a task planner, you need to parse the user input into multiple tasks in the following JSON format:
+{_output_format}
+
+Please think step by step, users may provide modification suggestions, and comprehensively consider the steps required to complete this task.
+
+# Note: Each task after splitting cannot be terminated halfway during the completion process;
+# Note: All information entered by the user is assumed to be correct by default, and you do not need to plan steps to confirm whether the information is correct;
+# Note: The resources in the initial environment are sufficient, and you do not need to query whether the resources in the available area are sufficient to execute the task;
+# Note: Unless the user request provides a description of the initial conditions, **no resources** are created in the initial environment except for the Huawei Cloud account and available Huawei Cloud access credentials; ensure that your plan has **the creation of the required resources** or **the acquisition of the required information steps** in your task, otherwise please complete them first;
+# Note: In order to prevent user privacy from being leaked, the Huawei Cloud authentication information has been known by the agent executing the task, and your task plan does not need to obtain authentication information such as Huawei Cloud access credentials
+
+If you need to re-plan, you need to read the completed tasks from completed_tasks.json, read the context information from the previous task completion process from context.json, and read the error information from the previous task completion process from error.json. Think step by step about how to modify the original plan to ensure the completion of the user request (ie the overall task)
+Note that you should ensure that **completed tasks (the content should not be changed in any way)** appear in your revised task plan, and ensure that the execution of the new task plan can avoid or fix the errors in error.json
+
+For each task, you need to assign it a separate task ID in the form of "task_positive integer" in the "id" field, describe the task content in detail in the "description" field, and write the list of prerequisite task IDs that need to be completed in the "dep" field (if there is no prerequisite task, write []), allowing the construction of loops, indicating that these tasks need to be executed multiple times iteratively.
+Make sure your task plan is as parallel as possible. If two tasks can be started at the same time without conflicting with each other, they can be executed in parallel.
+Please note that no matter what the task is, the task execution process can only be operated by calling the api or connecting remotely via ssh command line or writing and running scripts.
+"""
+
+f"""
 作为任务规划者，你需要将用户输入解析成以下 JSON 格式的多个任务: 
 {_output_format}
 

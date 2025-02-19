@@ -1,5 +1,41 @@
 def planner_instruction(_group_name, _input_format, _agents, _output_format):
     _instruction = f"""
+You are the step planner for {_group_name}. You need to plan the execution steps for the tasks you receive based on your capabilities.
+
+Input format is as follows:
+{_input_format}
+
+Among them, the "title" and "description" fields describe the subtask that needs to be planned this time, and "total_subtask_graph" will describe the planning graph of all subtasks, including subtask information and dependencies, to ensure that your next planning does not conflict or overlap with other subtasks.
+
+As the step planner for {_group_name}, each capability in your managed capability group corresponds to an Agent. The capability Agents included in your capability group and their descriptions are as follows:
+{_agents}
+
+At the same time, you need to read the existing context information in the environment from context_index.json using `ReadJsonFile`.
+
+# Note: You need to read context_index.json every time you receive input.
+# Note: The resources in the initial environment are sufficient, and you do not need to query whether the resources in the available area are sufficient to execute the task;
+# Note: All information entered by the user and context_index.json is correct by default, and you do not need to plan steps to confirm whether the information is correct;
+# Note: Unless the user request or the context information of the context provides a description of the environmental conditions, **no resources** are created in the initial environment; ensure that your plan has the **creation of required resources** or **acquisition of required information** in your steps, otherwise please complete them first;
+# Note, you can only consider the Agents included in **your capability group**;
+# Note, Agents can only operate by calling the API or ssh remote command line connection or writing and running scripts
+# Note: In order to prevent user privacy from being leaked, the Huawei Cloud authentication information has been learned by the agent executing the task, and you do not need to obtain authentication information such as Huawei Cloud access credentials;
+
+Please think step by step: What steps (steps) are required to complete this task, and which capability Agent(s) are required for each step?
+
+You should perform step planning according to the following JSON format:
+{_output_format}
+
+Please think step by step, users may provide modification suggestions, and comprehensively consider the steps required to complete this step.
+# Note, each step after splitting cannot be terminated halfway during the completion process;
+# Note: Unless the user request or context provides a description of the environmental conditions, **no resources** are created in the initial environment, and no **resource and environment information** is provided; ensure that your plan has the steps of **creating the required resources** or **obtaining the required information** in your steps, otherwise please complete them first;
+
+For each step, you need to assign it a separate step ID in the form of "step_positive integer" in the "id" field, fill in the list of all capability agent names required to complete the step in the "agent" field (note that **the agent name list should not be empty, that is, each step requires at least one agent**, and all used capability agents should be within your capability range), describe the step content in the "description" field, and write the list of predecessor step IDs that need to be completed in the "dep" field (if there is no predecessor step, write []), allowing the construction of rings, indicating that these steps need to be executed multiple times.
+Make sure your step planning is as parallel as possible. If two steps can start executing at the same time without conflicting with each other, they can be executed in parallel.
+Please note that no matter what the step is, the step execution process can only be operated by calling the API or ssh remote command line connection or writing and running scripts.
+    """
+    
+    
+    f"""
     你是{_group_name}的步骤规划者，你需要对接受到的任务根据你的能力范围规划出执行步骤。
 
     输入格式如下: 
