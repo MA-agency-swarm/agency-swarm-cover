@@ -1748,6 +1748,7 @@ class Agency:
             "task_information": step,
             "context": context
         }
+        
         with open(self.context_index_path, 'w') as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
 
