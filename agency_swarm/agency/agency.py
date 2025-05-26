@@ -1422,26 +1422,6 @@ class Agency:
             cap_agent_thread[agent.name] = Thread(self.user, agent)
         return cap_agent_thread
 
-    def test_single_cap_agent(self, step: dict, cap_group: str, plan_agents: Dict[str, Agent], cap_group_agents: Dict[str, List], cap_agents: Dict[str, List]):
-        """
-        用户请求 -> 事务*n1 -> 子任务*n2 -> 步骤*n3
-        事务是不可分割（指完成过程中）的任务，如安装软件等，必须完成之后才能进行其他操作；
-        子任务是对事务进行拆分，按照能力群拆分，类似于流水线；
-        步骤对应能力，指具体操作步骤，和能力Agent关联
-        """
-        self._setup_autocomplete()  # Prepare readline for autocomplete
-
-        self.init_files()
-
-        print("Initialization Successful.\n")
-        
-        cap_agent_threads = {}
-        for key in cap_agents:
-            cap_agent_threads[key] = self.create_cap_agent_thread(cap_group=key, cap_agents=cap_agents)
-
-        # task_id = 0
-        result, new_context = self.capability_agents_processor(step=step, cap_group=cap_group, cap_agent_threads=cap_agent_threads)
-
     def task_planning(self, plan_agents: Dict[str, Agent], cap_group_agents: Dict[str, List], cap_agents: Dict[str, List]):
         """
         用户请求 -> 事务*n1 -> 子任务*n2 -> 步骤*n3
@@ -1454,9 +1434,7 @@ class Agency:
         self.init_files()
 
         print("Initialization Successful.\n")
-        text = "在cn-north-4a可用区中，名为ccetest的CCE集群中加入一个节点，节点名字为node-1，集群id为eeb8f029-1c4b-11f0-a423-0255ac100260，节点规格为c6.large.2，系统盘和数据盘大小分别为50GB和100GB，磁盘类型都为SSD"
-        # text = "在cn-north-4a可用区创建一个名为ccetest的CCE集群，最小规格；未创建vpc和子网，需要创建名为vpc111的vpc和名为subnet111的子网，vpc的cidr为192.168.0.0/24，网关ip为192.168.0.1; 之后你需要在该CCE集群中加入三个节点"
-        # text = "在北京cn-north-4a可用区创建一个最低规格的CCE，名为'ccetest'，已有vpc和子网，VPC id为8bf558f4-2f96-4248-9cb0-fee7a2a6cebb，子网id为0519a325-6fa3-4f68-83ec-6f13263167d2"
+        text = "在北京cn-north-4a可用区创建一个ECS，规格任意"
         # text = "创建一个8核32g的ECS，操作系统选择为Ubuntu 20.04。"
         # text = "在北京可用区创建三个ecs，之后删除创建时间超过5分钟的ecs"
         # text = "在华为云ecs上部署mysql和postgresql，并用sysbench测试它们的性能"
@@ -1485,12 +1463,10 @@ class Agency:
 
         # task_id = 0
         context_id = 0
-        need_replan = False
-        error_message = ""
-        error_id = 0
+
         while True: # 拆分出任务（事务）流程图，id2task
             # task_id = task_id + 1
-            task_graph, tasks_need_scheduled = self.planning_layer(message=text, original_request=original_request, task_planner_thread=planner_thread, error_message=error_message, inspector_thread=inspector_thread, node_color='lightblue')
+            task_graph, tasks_need_scheduled = self.planning_layer(message=text, original_request=original_request, task_planner_thread=planner_thread, inspector_thread=inspector_thread, node_color='lightblue')
             self._init_file(self.error_path)
             id2task = {}
             task_graph_json = json.loads(task_graph)
@@ -1499,12 +1475,14 @@ class Agency:
                 id2task[task['id']] = task
 
             while True: # 任务调度
+                need_replan = False
+                error_id = 0
                 tasks_scheduled = self.scheduling_layer(scheduler_thread=scheduler_thread, message=tasks_need_scheduled)
                 tasks_scheduled_json = json.loads(tasks_scheduled)
                 next_task_list = tasks_scheduled_json['next_tasks']
                 
                 if not next_task_list:   # 当任务全部完成，退出
-                    return
+                    break
 
                 for next_task_id in next_task_list: # 拆分出子任务（能力群相关）流程图，id2subtask
                     next_task = id2task[next_task_id]
@@ -1576,32 +1554,24 @@ class Agency:
                                         context_id = context_id + 1
                                         self.update_context(context_id=context_id, context=new_context, step=next_step)
                                         self.update_completed_step(step_id=next_step_id, step=next_step)
-                                    elif result == 'FAIL':
+                                    elif result == 'FAIl':
                                         # 更新error
                                         error_id = error_id + 1
-                                        error_message = new_context
-                                        # self.update_error(error_id=error_id, error=new_context, step=next_step)
+                                        self.update_error(error_id=error_id, error=new_context, step=next_step)
                                         need_replan = True
                                         break
-                                if need_replan == True:
-                                    break
                             # 如果step全都正常完成，更新已完成子任务
-                            self._init_file(self.completed_step_path)
                             if need_replan == False:
                                 self.update_completed_sub_task(next_subtask_id, next_subtask)
                             else:
                                 break
-                        if need_replan == True:
-                            break
+                            self._init_file(self.completed_step_path)
                     # 如果子任务全都正常完成，更新已完成任务
-                    self._init_file(self.completed_subtask_path)
                     if need_replan == False:
                         self.update_completed_task(next_task_id, next_task)
                     else:
                         break
-                if need_replan == True:
-                    break
-                
+                    self._init_file(self.completed_subtask_path)
     
     def update_error(self, error_id: int, error: str, step: dict):
         with open(self.error_path, 'r') as file:
@@ -1683,11 +1653,9 @@ class Agency:
         print(f"{scheduler_thread.recipient_agent.name} SCHEDULING:\n" + schedulerres)
         return schedulerres
 
-    def planning_layer(self, message: str, original_request:str, task_planner_thread: Thread, error_message: str = "", inspector_thread: Thread = None, node_color: str = 'lightblue'):
+    def planning_layer(self, message: str, original_request:str, task_planner_thread: Thread, inspector_thread: Thread = None, node_color: str = 'lightblue'):
         """将返回1. 规划结果, 2. 对应scheduler的输入"""
         console.rule()
-        if error_message != "":
-            message = message + "\nThe error that occurred in the previous plan: \n" + error_message
         planmessage = self.json_get_completion(task_planner_thread, message, original_request, inspector_thread)
         print(f"{task_planner_thread.recipient_agent.name} RESULT:\n" + planmessage)
         planmessage_json = json.loads(planmessage)
@@ -1736,14 +1704,13 @@ class Agency:
                 
     def json_get_completion(self, thread: Thread, message: str, inspector_request: str = None, inspector_thread: Thread = None):
         _ = False
-        original_message = message
         while True:
             res = thread.get_completion(message=message, response_format='auto')
             response_information = self.my_get_completion(res)
             _, result = self.get_json_from_str(message=response_information)
             print(f"{result}")
             if _ == False:
-                message = "用户原始输入为: \n\{" + original_message + "\}\n" + "你之前的回答是:\n\{" + result + "\}\n" + "你之前的回答用户评价为: \n" + "{Your output Format is Wrong.}"
+                message = "Your output Format is Wrong.\n"
                 continue
 
             if inspector_thread:
@@ -1773,7 +1740,7 @@ class Agency:
                     __ = self.get_inspector_review(inspector_result)
                 if __ == True:
                     return result
-                message = "用户原始输入为: \n\{" + original_message + "\}\n" + "你之前的回答是:\n\{" + result + "\}\n" + "你之前的回答用户评价为: \n" + inspector_result
+                message = inspector_result
                 continue
             
             return result
@@ -1798,7 +1765,7 @@ class Agency:
             start_str = "```json\n"
             end_str = "\n```"
             try:
-                start_index = message.rfind(start_str) + len(start_str)
+                start_index = message.index(start_str) + len(start_str)
                 end_index = message.index(end_str, start_index)
                 return True, message[start_index: end_index]
             except ValueError:

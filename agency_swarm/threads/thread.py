@@ -64,10 +64,9 @@ class Thread:
     def init_thread(self):
         self._called_recepients = []
         self._num_run_retries = 0
-        
-        # 每次调用重置thread
-        # if self.id:
-        #    return
+
+        if self.id:
+            return
 
         self._thread = self.client.beta.threads.create()
         self.id = self._thread.id
@@ -112,7 +111,6 @@ class Thread:
         tool_choice: AssistantToolChoice = None,
         yield_messages: bool = False,
         response_format: Optional[dict] = None,
-        parameter: str = None
     ):
         self.init_thread()
 
@@ -145,7 +143,7 @@ class Thread:
         # Determine the sender's name based on the agent type
         sender_name = "user" if isinstance(self.agent, User) else self.agent.name
         print(
-            f"THREAD:[ {parameter if parameter else ''} {sender_name} -> {recipient_agent.name} ]: URL {self.thread_url}"
+            f"THREAD:[ {sender_name} -> {recipient_agent.name} ]: URL {self.thread_url}"
         )
 
         # send message

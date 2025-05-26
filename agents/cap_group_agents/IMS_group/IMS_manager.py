@@ -1,6 +1,5 @@
 from agency_swarm import Agent
 from agents.cap_group_agents.manager_instruction import manager_instruction
-from agents.tools.get_param_value.GetParamValue import GetParamValue
 
 _name = "IMS_manager"
 
@@ -14,7 +13,7 @@ _superior_agent = "subtask_manager"
 
 _instruction = manager_instruction(_group_name, _superior_agent)
 
-_tools = [GetParamValue]
+_tools = []
 
 _file_folder = ""
 

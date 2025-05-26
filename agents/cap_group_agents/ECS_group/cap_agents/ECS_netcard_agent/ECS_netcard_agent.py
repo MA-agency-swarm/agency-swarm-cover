@@ -3,7 +3,6 @@ from agents.cap_group_agents.ECS_group.cap_agents.ECS_netcard_agent.tools import
     ReadAPI
 )
 from agents.cap_group_agents.cap_agent_instruction import cap_agent_instruction
-from agents.basic_agents.job_agent.tools.CallAPI import CallAPI
 
 _name = "ECS_netcard_agent"
 _manager_name = "ECS_manager"
@@ -16,7 +15,7 @@ import os
 current_path = os.path.abspath(os.path.dirname(__file__))
 _instruction = cap_agent_instruction(_name, _description, _manager_name)
 
-_tools = [ReadAPI.ReadAPI, CallAPI]
+_tools = [ReadAPI.ReadAPI]
 
 _file_folder = ""
 
