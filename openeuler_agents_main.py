@@ -43,6 +43,50 @@ from agents.openeuler_agents.task_planner import (
 )
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
+from agents.cap_group_agents.ECS_group import (
+    ECS_manager, ECS_planner, ECS_step_scheduler
+)
+from agents.cap_group_agents.IAM_service_group import (
+    IAM_service_manager, IAM_service_planner, IAM_service_step_scheduler
+)
+from agents.cap_group_agents.IMS_group import (
+    IMS_manager, IMS_planner, IMS_step_scheduler
+)
+from agents.cap_group_agents.VPC_network import (
+    VPC_network_manager, VPC_network_planner, VPC_network_step_scheduler
+)
+
+from agents.cap_group_agents import (
+    basic_cap_solver, param_asker
+)
+
+from agents.cap_group_agents.ECS_group.cap_agents.ECS_harddisk_agent import ECS_harddisk_agent
+from agents.cap_group_agents.ECS_group.cap_agents.ECS_instance_agent import ECS_instance_agent
+from agents.cap_group_agents.ECS_group.cap_agents.ECS_netcard_agent import ECS_netcard_agent
+from agents.cap_group_agents.ECS_group.cap_agents.ECS_recommend_agent import ECS_recommend_agent
+from agents.cap_group_agents.ECS_group.cap_agents.ECS_specification_query_agent import ECS_specification_query_agent
+
+from agents.cap_group_agents.IAM_service_group.cap_agents.AKSK_agent import AKSK_agent
+
+from agents.cap_group_agents.IMS_group.cap_agents.IMS_agent import IMS_agent
+
+from agents.cap_group_agents.VPC_network.cap_agents.VPC_secgroup_agent import VPC_secgroup_agent
+from agents.cap_group_agents.VPC_network.cap_agents.VPC_subnet_agent import VPC_subnet_agent
+from agents.cap_group_agents.VPC_network.cap_agents.VPC_vpc_agent import VPC_vpc_agent
+
+from agents.basic_agents.api_agents import (
+    API_param_selector, array_selector, param_selector, param_inspector, array_splitter
+)
+
+from agents.basic_agents.job_agent import job_agent
+from agents.basic_agents.jobs_agent import jobs_agent
+from agents.basic_agents.jobs_agent import jobs_agent
+from agents.basic_agents.job_agent.tools.CheckLogForFailures import CheckLogForFailures
+from agents.basic_agents.api_agents.tools.CheckParamRequired import CheckParamRequired
+from agents.basic_agents.api_agents.tools.SelectAPIParam import SelectAPIParam
+from agents.basic_agents.api_agents.tools.SelectParamTable import SelectParamTable
+from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
+
 load_dotenv()
 set_openai_key(os.getenv("OPENAI_API_KEY"))
 
@@ -94,6 +138,8 @@ def main():
         subtask_inspector_instance = subtask_inspector.create_agent()
 
         step_inspector_instance = step_inspector.create_agent()
+        basic_cap_solver_instance = basic_cap_solver.create_agent()
+        param_asker_instance = param_asker.create_agent()
 
         software_planner_instance = software_planner.create_agent()
         software_step_scheduler_instance = software_step_scheduler.create_agent()
@@ -111,7 +157,42 @@ def main():
         permissions_agent_instance = permissions_agent.create_agent()
         network_agent_instance = network_agent.create_agent()
 
+        ECS_planner_instance = ECS_planner.create_agent()
+        ECS_manager_instance = ECS_manager.create_agent()
+        ECS_step_scheduler_instance = ECS_step_scheduler.create_agent()
+        ECS_harddisk_agent_instance = ECS_harddisk_agent.create_agent()
+        ECS_instance_agent_instance = ECS_instance_agent.create_agent()
+        ECS_netcard_agent_instance = ECS_netcard_agent.create_agent()
+        ECS_recommend_agent_instance = ECS_recommend_agent.create_agent()
+        ECS_specification_query_agent_instance = ECS_specification_query_agent.create_agent()
+
+        IAM_service_planner_instance = IAM_service_planner.create_agent()
+        IAM_service_manager_instance = IAM_service_manager.create_agent()
+        IAM_service_step_scheduler_instance = IAM_service_step_scheduler.create_agent()
+        AKSK_agent_instance = AKSK_agent.create_agent()
+
+        IMS_planner_instance = IMS_planner.create_agent()
+        IMS_manager_instance = IMS_manager.create_agent()
+        IMS_step_scheduler_instance = IMS_step_scheduler.create_agent()
+        IMS_agent_instance = IMS_agent.create_agent()
+
+        VPC_network_planner_instance = VPC_network_planner.create_agent()
+        VPC_network_manager_instance = VPC_network_manager.create_agent()
+        VPC_network_step_scheduler_instance = VPC_network_step_scheduler.create_agent()
+        VPC_secgroup_agent_instance = VPC_secgroup_agent.create_agent()
+        VPC_subnet_agent_instance = VPC_subnet_agent.create_agent()
+        VPC_vpc_agent_instance = VPC_vpc_agent.create_agent()
+
+
+
         check_log_agent_instance = check_log_agent.create_agent()
+        API_param_selector_instance = API_param_selector.create_agent()
+        array_selector_instance = array_selector.create_agent()
+        array_splitter_instance = array_splitter.create_agent()
+        param_selector_instance = param_selector.create_agent()
+        param_inspector_instance = param_inspector.create_agent()
+        job_agent_instance = job_agent.create_agent()
+        jobs_agent_instance = jobs_agent.create_agent()
 
         chat_graph = [
             # task
@@ -132,8 +213,12 @@ def main():
             subtask_inspector_instance,
             # step
             step_inspector_instance,
-            # check log
+            # 工具agent
             check_log_agent_instance,
+            basic_cap_solver_instance,
+            param_asker_instance,
+            array_splitter_instance,
+            param_inspector_instance,
             # 每个能力群的planner和step scheduler
             software_planner_instance,
             software_step_scheduler_instance,
@@ -141,6 +226,14 @@ def main():
             security_step_scheduler_instance,
             os_planner_instance,
             os_step_scheduler_instance,
+            ECS_planner_instance,
+            ECS_step_scheduler_instance,
+            IAM_service_planner_instance,
+            IAM_service_step_scheduler_instance,
+            IMS_planner_instance, 
+            IMS_step_scheduler_instance,
+            VPC_network_planner_instance, 
+            VPC_network_step_scheduler_instance,
             # 软件能力 agent
             package_agent_instance,
             repository_agent_instance,
@@ -151,11 +244,60 @@ def main():
             # 操作系统能力 agent
             permissions_agent_instance,
             network_agent_instance,
-        ]
+
+            #VPC能力群
+            [ECS_manager_instance, ECS_harddisk_agent_instance],
+            [ECS_manager_instance, ECS_instance_agent_instance],
+            [ECS_manager_instance, ECS_netcard_agent_instance],
+            [ECS_manager_instance, ECS_recommend_agent_instance],
+            [ECS_manager_instance, ECS_specification_query_agent_instance],
+
+            # [ECS_harddisk_agent_instance, jobs_agent_instance],
+            # [ECS_instance_agent_instance, jobs_agent_instance],
+            # [ECS_netcard_agent_instance, jobs_agent_instance],
+
+            [ECS_specification_query_agent_instance, ECS_manager_instance],
+            [ECS_recommend_agent_instance, ECS_manager_instance],
+            [ECS_netcard_agent_instance, ECS_manager_instance],
+            [ECS_instance_agent_instance, ECS_manager_instance],
+            [ECS_harddisk_agent_instance, ECS_manager_instance],
+
+            [IAM_service_manager_instance, AKSK_agent_instance],
+            
+            [IMS_manager_instance, IMS_agent_instance],
+            # [IMS_agent_instance, jobs_agent_instance],
+            [IMS_agent_instance, IMS_manager_instance],
+
+            [VPC_network_manager_instance, VPC_secgroup_agent_instance],
+            [VPC_network_manager_instance, VPC_subnet_agent_instance],
+            [VPC_network_manager_instance, VPC_vpc_agent_instance],
+
+            [ECS_harddisk_agent_instance, API_param_selector_instance],
+            [ECS_instance_agent_instance, API_param_selector_instance],
+            [ECS_netcard_agent_instance, API_param_selector_instance],
+            [ECS_recommend_agent_instance, API_param_selector_instance],
+            [ECS_specification_query_agent_instance, API_param_selector_instance],
+            [IMS_agent_instance, API_param_selector_instance],
+            [VPC_secgroup_agent_instance, API_param_selector_instance],
+            [VPC_subnet_agent_instance, API_param_selector_instance],
+            [VPC_vpc_agent_instance, API_param_selector_instance],
+
+            [param_selector_instance, array_selector_instance],
+            [array_splitter_instance],
+            [AKSK_agent_instance],
+
+
+]
 
         thread_strategy = {
             "always_new": [
                 (SSHExecuteCommand, check_log_agent),
+                (SelectAPIParam, param_selector),
+                (SelectParamTable, param_selector),
+                (param_selector, array_selector),
+                (CheckParamRequired, array_selector),
+                (CheckLogForFailures, check_log_agent),
+                (SplitArray, array_splitter)
             ]
         }
 
@@ -187,6 +329,11 @@ def main():
             "软件能力群": [software_planner_instance, software_step_scheduler_instance],
             "安全能力群": [security_planner_instance, security_step_scheduler_instance],
             "操作系统能力群": [os_planner_instance, os_step_scheduler_instance],
+            "弹性云服务器(ECS)管理能力群": [ECS_planner_instance, ECS_manager_instance, ECS_step_scheduler_instance],
+            "统一身份认证服务IAM能力群": [IAM_service_planner_instance, IAM_service_manager_instance, IAM_service_step_scheduler_instance],
+            "镜像管理能力群": [IMS_planner_instance, IMS_manager_instance, IMS_step_scheduler_instance],
+            "VPC网络管理能力群": [VPC_network_planner_instance, VPC_network_manager_instance, VPC_network_step_scheduler_instance],
+            "简单任务处理能力群": [basic_cap_solver_instance],
         }
 
         cap_group_agents_rag = {
@@ -209,11 +356,28 @@ def main():
                 permissions_agent_instance,
                 network_agent_instance,
             ],
+            "弹性云服务器(ECS)管理能力群": [
+                ECS_harddisk_agent_instance, 
+                ECS_instance_agent_instance, 
+                ECS_netcard_agent_instance, 
+                ECS_recommend_agent_instance, 
+                ECS_specification_query_agent_instance
+            ],
+            "统一身份认证服务IAM能力群": [
+                AKSK_agent_instance
+            ],
+            "镜像管理能力群": [
+                IMS_agent_instance
+            ],
+            "VPC网络管理能力群": [
+                VPC_secgroup_agent_instance, 
+                VPC_subnet_agent_instance, 
+                VPC_vpc_agent_instance
+            ],
+
         }
 
-        text = """我有一台鲲鹏服务器，操作系统是openEuler 22.03 64bit with ARM，远程登录用户为root，公网IP为114.116.242.221，密码是xxx。MySQL版本是8.0，root用户的密码是root。**在鲲鹏服务器上已经安装并部署好A-Tune和MySQL，且用户权限都已经授权好，防火墙允许的端口号也已经设置好，不需要进行检查或确认操作**，请使用A-Tune对MySQL进行优化，提升数据库性能。"""
-
-        # text = """我想要将本地服务器Ubuntu上的MySQL数据库sbtest迁移到一台鲲鹏服务器上。鲲鹏服务器的操作系统是openEuler 22.03 64bit with ARM，远程登录用户为root，公网IP为114.116.242.221，密码是xxx。Ubuntu的用户为silhouette，IP地址为192.168.254.129，密码是xxx。两台服务器的MySQL版本都是8.0，已经创建好数据库sbtest，root用户的密码都是root。**迁移所需要的所有工具都已经安装完毕，且用户权限都已经授权好，防火墙允许的端口号也已经设置好，不需要进行检查或确认操作**，请帮我制定一个详细的迁移方案，并给出每一步的操作命令。"""
+        text = """我想要将本地服务器Ubuntu上的MySQL数据库sbtest迁移到一台鲲鹏服务器上。鲲鹏服务器的实例ID为c15267ce-c0e5-4ddc-84dc-2ae8e3060d47，操作系统是openEuler 22.03 64bit with ARM，远程登录用户为root，公网IP为124.70.79.49，密码是20020402Vi。Ubuntu的用户为silhouette，IP地址为192.168.254.129，密码是20020402vi。两台服务器的MySQL版本都是8.0，已经创建好数据库sbtest，root用户的密码都是root。**迁移所需要的所有工具都已经安装完毕，且用户权限都已经授权好，防火墙允许的端口号也已经设置好，不需要进行检查或确认操作**。鲲鹏服务器目前是关闭状态，你需要先启动后才能继续操作，请帮我制定一个详细的迁移方案，并给出每一步的操作命令。"""
 
         # text = """我有一台鲲鹏服务器，操作系统是openEuler22.03，我想在此鲲鹏服务器上安装并配置以下数据库环境：MySQL 8.0.25，设置字符集为 UTF8MB4，端口号为 3306。请确保所有数据库服务均能正常启动，并设置为开机自启动。应该如何操作？"""
 

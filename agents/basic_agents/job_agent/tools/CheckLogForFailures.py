@@ -17,6 +17,6 @@ class CheckLogForFailures(BaseTool):
 
         check_result = self.send_message_to_agent(recipient_agent_name="check_log_agent", message=file_content)
         if "该任务执行失败" in check_result:
-            return {"result": "FAIL", "context": check_result}
-        return {"result": "SUCCESS", "context": self.read_file_path}
+            return {"tool":"CallAPI", "result": "FAIL", "context": check_result}
+        return {"tool":"CallAPI", "result": "SUCCESS", "context": check_result}
   

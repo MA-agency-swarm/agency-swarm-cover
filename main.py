@@ -218,6 +218,7 @@ def main():
         chat_graph = [task_planner_instance, task_scheduler_instance, task_inspector_instance,
                     subtask_planner_instance, subtask_manager_instance, subtask_scheduler_instance, subtask_inspector_instance,
                     step_inspector_instance,
+                    
                     basic_cap_solver_instance, param_asker_instance,
                     array_splitter_instance,
                     param_inspector_instance,
