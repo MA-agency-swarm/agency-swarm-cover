@@ -4,8 +4,9 @@ import os
 
 class GetEndPointAndProjectID(BaseTool):
     def run(self):
+        project = os.getenv("PROJECT")
         project_id = os.getenv("PROJECT_ID")
         return {
-            "endpoint": "ims.cn-north-4.myhuaweicloud.com",
+            "endpoint": f"ims.{project}.myhuaweicloud.com",
             "poject_id": project_id
         }
