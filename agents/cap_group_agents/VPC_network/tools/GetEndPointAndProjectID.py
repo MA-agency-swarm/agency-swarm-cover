@@ -8,5 +8,5 @@ class GetEndPointAndProjectID(BaseTool):
         project_id = os.getenv("PROJECT_ID")
         return {
             "endpoint": f"vpc.{project}.myhuaweicloud.com",
-            "poject_id": project_id
+            "project_id": project_id
         }
