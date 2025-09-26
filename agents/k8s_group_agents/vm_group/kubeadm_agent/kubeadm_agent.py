@@ -3,6 +3,7 @@ from agents.k8s_group_agents.tools.ExecuteCommand import ExecuteCommand
 from agents.k8s_group_agents.vm_agent_instruction import vm_agent_instruction
 
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 
 _name = "kubeadm_agent"

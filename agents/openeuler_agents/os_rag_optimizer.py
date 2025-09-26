@@ -2,6 +2,7 @@ from agency_swarm import Agent
 from agents.openeuler_agents.os_group import os_planner
 from agents.openeuler_agents.rag_optimize_instruction import rag_optimize_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "os_rag_optimizer"
 

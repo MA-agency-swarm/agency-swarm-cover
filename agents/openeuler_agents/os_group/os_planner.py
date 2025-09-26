@@ -1,6 +1,7 @@
 from agency_swarm import Agent
 from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "access_planner"
 
@@ -40,7 +41,7 @@ _output_format = """
 
 _instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)
 
-_tools = [ReadJsonFile]
+_tools = [ReadJsonFile,ReadFile.ReadFile]
 
 _file_folder = ""
 

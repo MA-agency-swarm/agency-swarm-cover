@@ -2,6 +2,7 @@ from agency_swarm import Agent
 
 from agents.openeuler_agents.openeuler_agent_instruction import openeuler_agent_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 from agents.k8s_group_agents.tools.WriteFile import WriteFile
 from datetime import datetime
 
@@ -21,7 +22,8 @@ _tool_instruction = f"""
 
 ### step 1. 读取日志信息
 
-你收到用户发输入请求后，需要先调用工具`ReadJsonFile`从context_tree.json中读取完整的上下文信息,
+你收到用户发输入请求后，需要先调用工具`ReadJsonFile`从context_tree.json中读取完整的上下文信息, 获取以上信息后，你还需要判断其中已经完成任务的返回结果是否与本次任务有关，如果有关，请你用`ReadJsonFile`读取相应的api调用结果或ssh命令返回结果文件或用`ReadFile`读取相关文本文件内信息的内容，
+
 若任务要求是输出测试报告，请分析上下文中是否有测试数据，若上下文中不存在目标数据，请直接返回：
 
 {{
@@ -45,7 +47,7 @@ _tool_instruction = f"""
 
 {{
     "tool": "...",
-    "text_result": "(写入文件的内容)",
+    "text_result": "(写入文件的路径)",
     "result": "...",
     "context": "(填写原因)""
 }}
@@ -59,7 +61,7 @@ import os
 current_path = os.path.abspath(os.path.dirname(__file__))
 _instruction = _tool_instruction
 
-_tools = [ReadJsonFile, WriteFile]
+_tools = [ReadJsonFile, WriteFile,ReadFile.ReadFile]
 
 _file_folder = ""
 

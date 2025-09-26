@@ -1,6 +1,7 @@
 from agency_swarm import Agent
 from agents.cap_group_agents.manager_instruction import manager_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 from agents.tools.write_json_file.WriteJsonFile import WriteJsonFile
 
 _name = "IAM_service_manager"

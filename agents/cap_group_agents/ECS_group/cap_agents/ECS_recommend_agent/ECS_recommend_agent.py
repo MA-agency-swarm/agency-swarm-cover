@@ -8,6 +8,7 @@ from agents.cap_group_agents.ECS_group.tools import (
     GetEndPointAndProjectID, AskManagerParams
 )
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "ECS_recommend_agent"
 _manager_name = "ECS_manager"

@@ -30,6 +30,7 @@ from agents.openeuler_agents.software_group import (
     software_planner,
     software_step_scheduler,
 )
+from agents.openeuler_agents.software_group.sql_agent import sql_agent
 from agents.openeuler_agents.software_group.atune_agent import atune_agent
 from agents.openeuler_agents.software_group.package_agent import package_agent
 from agents.openeuler_agents.software_group.repository_agent import repository_agent
@@ -196,6 +197,7 @@ def main():
         package_agent_instance = package_agent.create_agent()
         repository_agent_instance = repository_agent.create_agent()
         atune_agent_instance = atune_agent.create_agent()
+        sql_agent_instance = sql_agent.create_agent()
 
         security_planner_instance = security_planner.create_agent()
         security_step_scheduler_instance = security_step_scheduler.create_agent()
@@ -332,6 +334,7 @@ def main():
             package_agent_instance,
             repository_agent_instance,
             atune_agent_instance,
+            sql_agent_instance,
             # 安全能力 agent
             secscanner_agent_instance,
             syscare_agent_instance,
@@ -544,6 +547,7 @@ def main():
                 package_agent_instance,
                 repository_agent_instance,
                 atune_agent_instance,
+                sql_agent_instance,
             ],
             "安全能力群": [
                 secscanner_agent_instance,
@@ -569,13 +573,27 @@ def main():
 
         }
 
-        text = """当前账户有一个名为TEST-DB-1的ECS实例，用户名为root ，密码为Abcd1234，其中有MySQL数据库集群，用户名root，密码为YourPass123!,请确认你连接到该MySQL数据库集群并提供当前的集群配置概览。
-并基于当前的MySQL集群配置和业务需求，请制定一个异地灾备方案。我们的RTO目标是30分钟，RPO目标是5分钟。请考虑成本效益和性能影响。- 在方案中，请特别说明如何处理跨区域的网络延迟问题。"- "请提供至少两种可选的灾备策略，并分析各自的优缺点。"
-之后请构建一个与我们当前生产环境相似的测试环境。生产环境包含2台ECS实例，1个负载均衡器，1个MySQL主从集群，以及相应的VPC和安全组配置。请确保测试环境在功能上与生产环境一致，但可以使用较低配置的资源以节省成本。"
-- "在构建测试环境时，请使用以下命名约定：所有资源名称都应该以'TEST-'为前缀。"
-- "构建完成后，请提供一份详细的环境对比报告，包括任何与生产环境的差异。"        
- """
-        #text = """请获取当前账户的所有ECS服务器信息,若其中没有名为TEST-DB-1的服务器，请创建一个TEST-DB-1的服务器"""
+       # text = """当前账户有两个名称分别为为TEST-DB-1（id：8fbf562f-fe30-493b-bb1c-2a1e6178b077）、TEST-DB-2（id：81cb6eff-7d57-4669-92e7-2e3c97616f15）的ECS实例，ip地址为：1.92.124.187、120.46.169.42；其操作系统都是用户名为root ，密码都为Abcd1234；这两台服务器配置有MySQL数据库主从集群，主库用户名root，密码为YourPass123!,从库用户名为root，密码为YourPass123!；
+        #服务器均已开启请你连接到该MySQL数据库集群，然后基于当前的MySQL集群配置和业务需求，请制定一个异地灾备方案。我们的RTO目标是30分钟，RPO目标是5分钟，请考虑成本效益和性能影响，在方案中，请特别说明如何处理跨区域的网络延迟问题，请提供至少两种可选的灾备策略，并分析各自的优缺点。（只需要在一个文档中输出）"   
+         #  """
+        text = """- 请配置测试环境ECS服务器DR-1和DR2主备数据库之间的复制（二者处于一个私有vpc之下）。
+  主库和从库的sql都已经安装好，密码也已经设置好，而且两个ECS示例都已经安装好UniAgent，
+  
+  注意：设置主从数据库时，请禁用SSL配置，避免握手时启用SSL
+
+  主库的访问信息如下：
+  服务器名称：DR-0001，实例id：9bad34c0-cb1b-4113-a6aa-b6187c8ba42a，弹性公网ip：124.70.75.130，私有ip：10.0.0.120；
+  操作系统配置 用户：root, 密码：Abcd1234
+  数据库访问信息：用户名：root 密码：StrongPass123!
+
+  从库的访问信息如下：
+  服务器名称：DR-0002，实例id：effac639-4ff2-48d9-81de-d46a612aa06c，弹性公网ip：124.70.6.238，私有IP：10.0.0.142；
+  操作系统配置 用户：root, 密码：Abcd1234
+  数据库访问信息：用户名：root 密码：StrongPass123!。
+
+  额外要求如下
+  1. 设置复制账户，用户名为'repl_user'，密码：StrongPass123!。"
+  2. 部署完成后，请生成一份的部署文档，介绍配置步骤和参数。"""
         # text ="""我有一台鲲鹏服务器，操作系统是openEuler22.03，我想在此鲲鹏服务器上安装并配置以下数据库环境：MySQL 8.0.25，设置字符集为 UTF8MB4，端口号为 3306。请确保所有数据库服务均能正常启动，并设置为开机自启动。使用源代码编译方式安装MySQL，已下载MySQL 8.0.25源码在/home/mysql-8.0.25目录下。应该如何操作？"""
 
         files_path = os.path.join("agents", "files")

@@ -1,22 +1,25 @@
 from agency_swarm import Agent
 
-from agents.k8s_group_agents.k8s_agent_instruction import k8s_agent_instruction
+from agents.openeuler_agents.openeuler_agent_instruction import openeuler_agent_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 from agents.basic_agents.job_agent.tools import ReadFile
-from agents.k8s_group_agents.tools.ExecuteCommand import ExecuteCommand
+from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
 
-_name = "disk_agent"
+_name = "sql_agent"
 _description = """
-负责磁盘管理，包括挂载、卸载、查询状态、故障隔离。
+负责使用mysql语句管理数据库
+注意：
+1. cd命令和其他命令一起执行，使用`&&`连接；
+2. 设置主从复制用户时，尽量修改用户插件为mysql_native_password并执行FLUSH PRIVILEGES;以避免SSL设置
 """
 
 import os
 
 current_path = os.path.abspath(os.path.dirname(__file__))
-_instruction = k8s_agent_instruction(_name,_description)
+_instruction = openeuler_agent_instruction(_name,_description)
 
-_tools = [ReadJsonFile, ExecuteCommand]
+_tools = [ReadJsonFile, SSHExecuteCommand,ReadFile.ReadFile]
 
 _file_folder = ""
 
@@ -29,7 +32,7 @@ def create_agent(*,
                  tools=tools,
                  description=description,
                  instructions=instuction,
-                 files_folder=_file_folder,
+                 files_folder=files_folder,
                  temperature=0.5,
                  response_format='auto',
                  max_prompt_tokens=25000,)

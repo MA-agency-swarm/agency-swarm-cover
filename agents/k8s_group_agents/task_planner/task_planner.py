@@ -1,5 +1,6 @@
 from agency_swarm import Agent
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 _name = "task_planner"
 
 _description = """
@@ -53,7 +54,7 @@ _instruction = f"""作为task规划者，你需要将用户输入请求解析成
 
 
 
-_tools = [ReadJsonFile]
+_tools = [ReadJsonFile,ReadFile.ReadFile]
 
 _file_folder = ""
 

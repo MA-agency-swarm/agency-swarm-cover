@@ -2,6 +2,7 @@ from agency_swarm import Agent
 
 from agents.openeuler_agents.openeuler_agent_instruction import openeuler_agent_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
 
@@ -66,7 +67,7 @@ import os
 current_path = os.path.abspath(os.path.dirname(__file__))
 _instruction = openeuler_agent_instruction(_name,_description,_tool_instruction)
 
-_tools = [ReadJsonFile, SSHExecuteCommand]
+_tools = [ReadJsonFile, SSHExecuteCommand,ReadFile.ReadFile]
 
 _file_folder = ""
 

@@ -1,6 +1,7 @@
 from agency_swarm import Agent
 from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "comprehensive_planner"
 
@@ -35,9 +36,9 @@ _output_format = """
 }
 """
 
-_instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)
+_instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)+"注意：请规划尽可能少的步骤完成需求，并且尽可能避免规划归纳总结类步骤，能力agnet具有自己收集上下文信息的能力"
 
-_tools = [ReadJsonFile]
+_tools = [ReadJsonFile,ReadFile.ReadFile]
 
 _file_folder = ""
 

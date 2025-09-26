@@ -1,6 +1,7 @@
 from agency_swarm import Agent
 from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "software_planner"
 
@@ -24,6 +25,7 @@ _agents = """
 1. **package_agent**: 负责使用yum等包管理器对软件包进行查询、安装、删除等操作。
 2. **repository_agent**: 负责使用git管理代码仓库的更改，例如导出commit等。
 3. **atune_agent**: 负责使用A-Tune工具优化OpenEuler系统上的软件配置，提升应用性能。
+4.**sql_agent**: 负责使用mysql等语句对数据库进行管理
 """
 
 _output_format = """
@@ -41,7 +43,7 @@ _output_format = """
 
 _instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)
 
-_tools = [ReadJsonFile]
+_tools = [ReadJsonFile,ReadFile.ReadFile]
 
 _file_folder = ""
 
