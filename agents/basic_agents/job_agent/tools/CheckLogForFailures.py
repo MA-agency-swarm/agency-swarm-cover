@@ -15,8 +15,12 @@ class CheckLogForFailures(BaseTool):
         if len(file_content) > 20000:
             file_content = file_content[: 20000]
 
+        print(f"CheckLogForFailures: reading {target_path}")
+        print(f"content: {file_content}")
+        if file_content.strip() == "":
+            return {"tool":"CallAPI", "result": "FAIL", "context": "api调用没有返回结果,执行成功"}
         check_result = self.send_message_to_agent(recipient_agent_name="check_log_agent", message=file_content)
         if "该任务执行失败" in check_result:
-            return {"tool":"CallAPI", "result": "FAIL", "context": check_result}
-        return {"tool":"CallAPI", "result": "SUCCESS", "context": check_result}
+            return {"tool":"CallAPI", "result": "FAIL", "context": f"api调用结果保存于{target_path},判断的结果内容为{check_result}"}
+        return {"tool":"CallAPI", "result": "SUCCESS", "context": f"api调用结果保存于{target_path},判断的结果内容为{check_result}"}
   

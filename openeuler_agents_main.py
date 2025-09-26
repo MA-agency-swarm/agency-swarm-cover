@@ -578,8 +578,9 @@ def main():
 
         }
         text = """华为云上有一台ID为f180a3f5-d43b-4f71-8fb1-955567fa220e的服务器，
-        绑定的安全组id为e5aa3e03-0870-416c-9dd9-3e8ce6ac22ef，该服务器正在升级，请通过新增规则，请切断其所有入站流量。"""
+        绑定的安全组id为d51108cc-498f-48ff-9a68-51a9f2c88d69，该服务器正在升级，请通过删除安全组规则实现切断其所有入站流量。"""
         # text = """华为云上有一台ID为f180a3f5-d43b-4f71-8fb1-955567fa220e的服务器，绑定的安全组id为e5aa3e03-0870-416c-9dd9-3e8ce6ac22ef，请获取安全组的具体的规则。"""
+        # text = """在121.36.210.47的服务器上使用已安装并配置好的secScanner工具扫描该机器的CVE漏洞。确保使用root用户进行免密登录。"""
         files_path = os.path.join("agents", "files")
         comtext_tree = os.path.join(files_path, "context_tree.json")
         # 确保文件目录存在
