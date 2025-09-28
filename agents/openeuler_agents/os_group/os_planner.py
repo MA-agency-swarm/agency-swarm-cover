@@ -2,7 +2,7 @@ from agency_swarm import Agent
 from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 
-_name = "access_planner"
+_name = "os_planner"
 
 _description = """
 负责操作系统能力群的步骤规划
