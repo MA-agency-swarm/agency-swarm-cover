@@ -2025,9 +2025,11 @@ class Agency:
         # 取出各类规划/检查/调度/任务细化的智能体（Agent）
         task_planner_rag = plan_agents["task_planner_rag"]
         task_inspector_rag = plan_agents["task_inspector_rag"]
+        task_manager_rag = plan_agents["task_manager_rag"]
         # 创建用户与各智能体的对话线程（Thread）
         task_planner_rag_thread = Thread(self.user, task_planner_rag)
         task_inspector_rag_thread = Thread(self.user, task_inspector_rag)
+        task_manager_rag_thread = Thread(self.user, task_manager_rag)
 
         # 如果未开启代码级调度，还需要为task调度器创建线程
         if not code_scheduling:
@@ -2122,9 +2124,7 @@ class Agency:
                         "last_error": "",
                     }
 
-                    self.update_context_tree(
-                        request_id=request_id, task_id=next_task_id, status="executing"
-                    )
+                    self.update_context_tree(request_id=request_id, task_id=next_task_id, status="executing")
 
                     console.rule()
                     print(
@@ -2162,9 +2162,7 @@ class Agency:
                                 )
                             result = action.get('result', "FAIL")
                             context = action.get('context', "No context provided.")
-                            assert (
-                                result == "SUCCESS" or result == "FAIL"
-                            ), f"Unknown result: {result}"
+                            assert (result == "SUCCESS" or result == "FAIL"), f"Unknown result: {result}"
 
                             self.update_context_tree(
                                 request_id=request_id,
@@ -2180,9 +2178,7 @@ class Agency:
                                 error_id = error_id + 1
                                 task_error_flag = True
                                 task_error_message = context
-                                self.update_error(
-                                    error_id=error_id, error=context, step=next_task
-                                )
+                                self.update_error(error_id=error_id, error=action, step=next_task)
 
                         except Exception as e:
                             # 更新error
@@ -2202,25 +2198,20 @@ class Agency:
                             )
                             task_error_num += 1
 
-                            self.clear_context_tree_node(
-                                request_id=request_id, task_id=next_task_id
-                            )
+                            self.clear_context_tree_node(request_id=request_id, task_id=next_task_id)
 
                             if task_error_num < 3:
                                 # 单个task执行不超过3次失败则加上错误信息重新细化该task
                                 task_input["last_error"] = task_error_message
+                                print("task_input:###",task_input)
                                 optimize_again = self.task_optimizing_layer(
                                     message=json.dumps(task_input, ensure_ascii=False),
                                     original_request=next_task["description"],
-                                    optimizer_thread=cap_group_thread[
-                                        next_task_cap_group
-                                    ][0],
+                                    optimizer_thread=cap_group_thread[next_task_cap_group][0],
                                     overall_id=next_task_id,
                                 )
                                 optimize_again_json = json.loads(optimize_again)
-                                next_task["description"] = optimize_again_json[
-                                    "description"
-                                ]
+                                next_task["description"] = optimize_again_json["description"]
                                 next_task["agent"] = optimize_again_json["agent"]
 
                                 self.update_context_tree(
@@ -2268,7 +2259,7 @@ class Agency:
                 self.clear_context_tree_node(request_id=request_id)
                 continue  # 重新规划用户请求
 
-    def update_error(self, error_id: int, error: str, step: dict):
+    def update_error(self, error_id: int, error: dict, step: dict):
         try:
             with open(self.error_path, "r", encoding="utf-8") as file:
                 try:  # 尝试读取 JSON 数据
@@ -2561,8 +2552,34 @@ class Agency:
                 "response": 提问内容或最终回答（格式为字符串，注意换行时应写换行符不要直接换行）
             }
             """
+        # instruction = """
+        #     你是一个鲲鹏服务器的运维专家，你只能根据知识库的内容来总结并回答问题，请确保你输出的所有内容都来自于知识库。当所有知识库内容都与问题无关时，你的回答必须包括“知识库中未找到您要的答案！”这句话。
+        #     以下是知识库:
+        #     {knowledge}
+        #     以上是知识库。
+
+        #     你的输出为以下 JSON 格式:
+        #     {output_format}
+
+        #     其中，"is_complete"字段表示当前回答是否是对用户原始请求的详细解答，"0"表示否，"1"表示是。当"is_complete"为"0"时，"response"字段中写入问题列表；当"is_complete"为"1"时，"response"字段中写入对用户原始输入的详细解答。
+
+        #     用户的原始请求是：
+        #     {original_request}
+
+        #     请注意，每次回答时你都需要根据知识库内容仔细判断用户输入的信息是否充分、是否包含回答原始请求所需的完整信息。
+
+        #     如果信息不够充分，你不能给出详细答案，"is_complete" 字段填入"0"，并在"response" 字段中列出需要用户回答的问题，以确定用户偏好、获取额外信息。比如在安装软件时通常会根据用户的不同偏好选择跳转到不同的安装步骤执行，根据操作系统、性能测试需求、网络环境等内容选择不同的安装方式和工具使用，等等。你要根据用户的软硬件环境并结合知识库内容，为用户提供合适的操作指导。
+        #     在每轮对话中，你应该判断用户是否回答了你历史对话中列出的所有问题，若用户回答不全面，你应该分析用户输入，并根据知识库的内容继续判断还需要获取哪些信息并向用户提问，若用户对你提出的问题有其他疑问，你应该基于历史对话和知识库内容来作答或提供选项帮助用户回答你的问题，这时由于你的回答不是对用户原始请求的回答内容，此时"is_complete" 字段填入"0"，"response" 字段中根据知识库内容继续列出需要用户回答的问题，不断与用户对话获取完整回答所需的必要信息。
+
+        #     经过0轮或多轮与用户的循环对话后，你总结用户提供的所有内容，当你判断认为自己所获取的信息足够充分、能够详尽的回答用户的原始请求、回答内容不包含非确定选择或可选选项时，你输出详细的答案，"is_complete" 字段填入"1"，"response" 字段中填入对用户原始问题的详细回答。
+        #     注意**"response"字段的内容只能来源于知识库，必须按照知识库内容原文输出，输出的每个步骤具体到执行命令**，输出内容要全面，包括前置条件，如软硬件环境、编译环境、配置必要的源、数据盘搭建、依赖包安装等，以及后置验证，如配置文件、初始化和启动等。
+
+        #     请注意，你不需要针对你输出的内容和用户确认是否需要调整，直接输出即可。
+
+        #     你的每次回答需要考虑聊天历史。你的最后一次回答中的 "is_complete" 字段一定是"1"。
+        # """
         instruction = """
-            你是一个鲲鹏服务器的运维专家，你只能根据知识库的内容来总结并回答问题，请确保你输出的所有内容都来自于知识库。当所有知识库内容都与问题无关时，你的回答必须包括“知识库中未找到您要的答案！”这句话。
+            你是一个华为云主机监控服务的运维专家，你只能根据知识库的内容来总结并回答问题，请确保你输出的所有内容都来自于知识库。当所有知识库内容都与问题无关时，你的回答必须包括“知识库中未找到您要的答案！”这句话。
             以下是知识库:
             {knowledge}
             以上是知识库。
@@ -2577,16 +2594,17 @@ class Agency:
 
             请注意，每次回答时你都需要根据知识库内容仔细判断用户输入的信息是否充分、是否包含回答原始请求所需的完整信息。
 
-            如果信息不够充分，你不能给出详细答案，"is_complete" 字段填入"0"，并在"response" 字段中列出需要用户回答的问题，以确定用户偏好、获取额外信息。比如在安装软件时通常会根据用户的不同偏好选择跳转到不同的安装步骤执行，根据操作系统、性能测试需求、网络环境等内容选择不同的安装方式和工具使用，等等。你要根据用户的软硬件环境并结合知识库内容，为用户提供合适的操作指导。
+            如果信息不够充分，你不能给出详细答案，"is_complete" 字段填入"0"，并在"response" 字段中列出需要用户回答的问题，以确定用户偏好、获取额外信息。比如在安装软件时通常会有一些约束与限制，或根据用户的不同偏好选择跳转到不同的安装步骤执行，根据操作系统、VPC情况等内容选择不同的安装方式和工具使用，等等。你要根据用户的软硬件环境并结合知识库内容，为用户提供合适的操作指导。
             在每轮对话中，你应该判断用户是否回答了你历史对话中列出的所有问题，若用户回答不全面，你应该分析用户输入，并根据知识库的内容继续判断还需要获取哪些信息并向用户提问，若用户对你提出的问题有其他疑问，你应该基于历史对话和知识库内容来作答或提供选项帮助用户回答你的问题，这时由于你的回答不是对用户原始请求的回答内容，此时"is_complete" 字段填入"0"，"response" 字段中根据知识库内容继续列出需要用户回答的问题，不断与用户对话获取完整回答所需的必要信息。
 
             经过0轮或多轮与用户的循环对话后，你总结用户提供的所有内容，当你判断认为自己所获取的信息足够充分、能够详尽的回答用户的原始请求、回答内容不包含非确定选择或可选选项时，你输出详细的答案，"is_complete" 字段填入"1"，"response" 字段中填入对用户原始问题的详细回答。
-            注意**"response"字段的内容只能来源于知识库，必须按照知识库内容原文输出，输出的每个步骤具体到执行命令**，输出内容要全面，包括前置条件，如软硬件环境、编译环境、配置必要的源、数据盘搭建、依赖包安装等，以及后置验证，如配置文件、初始化和启动等。
+            注意**"response"字段的内容只能来源于知识库，必须按照知识库内容原文输出，输出的每个步骤具体到执行命令或华为云api调用**，输出内容要全面，包括前提条件以及后置验证。
 
             请注意，你不需要针对你输出的内容和用户确认是否需要调整，直接输出即可。
 
             你的每次回答需要考虑聊天历史。你的最后一次回答中的 "is_complete" 字段一定是"1"。
         """
+
         assistant_config = {
             "language": "Chinese",
             "prompt": {

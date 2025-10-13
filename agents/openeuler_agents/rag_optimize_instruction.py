@@ -19,7 +19,7 @@ def rag_optimize_instruction(_group_name, _input_format, _agents, _output_format
 你必须严格按照以下JSON格式输出步骤规划结果:
 {_output_format}
 
-其中，在 "description" 字段填入细化或重新规划后的task描述，并在"agent"字段填入完成该task所需的能力agent名称 (注意**agent名称不应该为空，即每个task都需要一个agent**，用到的能力agent应该都在你能力范围之内)。
+其中，在 "description" 字段填入细化或重新规划后的task描述，应写出完整的描述和操作命令，并在"agent"字段填入完成该task所需的能力agent名称 (注意**agent名称不应该为空，即每个task都需要一个agent**，用到的能力agent应该都在你能力范围之内)。
 
 # 注意：你不允许调用`multi_tool_use.parallel`；
 
