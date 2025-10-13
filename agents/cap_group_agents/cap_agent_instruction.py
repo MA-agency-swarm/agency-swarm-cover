@@ -21,7 +21,7 @@ def cap_agent_instruction(_name, _description, _manager_name):
 
     获取到这些信息后，请你记忆用户初始请求，如果是与你职责无关的请求，直接按照json格式返回：{{"result":"FAIL","context":"没有可以执行的api"}}。
     
-    你需要调用`ReadAPI`，思考是否有符合用户需求的api，如果没有符合用户需求的api，请直接返回：{{"result":"FAIL","context":"没有可以执行的api"}}
+    你需要调用`ReadAPI`，根据获取的结果判断是否有符合用户需求的api，如果没有符合用户需求的api，请直接返回：{{"result":"FAIL","context":"没有可以执行的api"}}
     
     如果有符合用户需求的api，你需要使用`SendMessage`向API Param Selector发送：
     
@@ -40,7 +40,7 @@ def cap_agent_instruction(_name, _description, _manager_name):
     
     对于其他参数，你需要使用`AskManagerParams`来询问这些参数
     
-    当接收到`AskManagerParams`的回复时，你需要确认<param_list>中所有的必要参数是否都已经获取到，如果有参数值缺失，则重复step 2使用`AskManagerParams`，直到没有参数值缺失为止
+    当接收到`AskManagerParams`的回复时，你需要确认<param_list>中所有的必要参数是否都已经获取到，如果有参数值缺失，则重复step 2使用`AskManagerParams`，直到没有参数值缺失为止。
 
     ### step 3. 获取响应
     
@@ -49,11 +49,12 @@ def cap_agent_instruction(_name, _description, _manager_name):
     当你接收到`CallAPI`的返回结果后，你应该用以下json格式输出:
     
     {{
+        "tool": ...,
         'result': ...,
         'context': ...
     }}
     
-    其中"result"和"context"需要填入`CallAPI`返回结果中相同字段的内容
+    其中"result"和"context"需要填入`CallAPI`返回结果中相同字段的内容。
 
     """
 

@@ -7,10 +7,10 @@ from agents.tools.write_json_file.WriteJsonFile import WriteJsonFile
 _name = "IAM_service_manager"
 
 _description = """
-负责统一身份认证IAM能力群的消息管理
+负责统一身份认证服务IAM能力群的消息管理
 """
 
-_group_name = "统一身份认证IAM能力群"
+_group_name = "统一身份认证服务IAM能力群"
 
 _superior_agent = "subtask_manager"
 

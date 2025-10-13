@@ -6,10 +6,10 @@ from agents.basic_agents.job_agent.tools import ReadFile
 _name = "IAM_service_planner"
 
 _description = """
-负责统一身份认证IAM能力群的步骤规划
+负责统一身份认证服务IAM能力群的步骤规划
 """
 
-_group_name = "统一身份认证IAM能力群"
+_group_name = "统一身份认证服务IAM能力群"
 
 _input_format = """
 {

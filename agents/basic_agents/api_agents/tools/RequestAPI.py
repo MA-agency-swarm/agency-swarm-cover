@@ -78,13 +78,14 @@ class RequestAPI(BaseTool):
             print(f"METHOD: {r.method}, URL: {r.scheme + midstr + r.host + r.uri}, HEADERS: {r.headers}, DATA: {r.body}")
             resp = requests.request(r.method, r.scheme + "://" + r.host + r.uri, headers=r.headers, data=r.body)
             content = bytes.decode(resp.content)
+            if r.method == "DELETE" and resp.status_code == 204:
+                content = json.dumps({"message": "执行成功"})  # empty json object replaced with success message
             result_json = {
                 "status_code": resp.status_code,
                 "reason": resp.reason,
                 "content": json.loads(content)
             }
             result_str = json.dumps(result_json, ensure_ascii=False, indent=4)
-
             # name the result file
             prefix = "context_"
             suffix = ".json"
