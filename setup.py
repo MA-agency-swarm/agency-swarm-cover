@@ -23,5 +23,5 @@ setup(
     entry_points={
         "console_scripts": ["agency-swarm=agency_swarm.cli:main"],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.10",
 )

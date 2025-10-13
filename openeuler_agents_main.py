@@ -7,14 +7,12 @@ from dotenv import load_dotenv
 from agency_swarm import Agency, Agent, set_openai_key
 from agents.openeuler_agents import (
     check_log_agent,
-    os_rag_optimizer,
-    security_rag_optimizer,
-    software_rag_optimizer,
     step_inspector,
 )
 from agents.openeuler_agents.os_group import (
     os_planner, 
     os_step_scheduler,
+    os_rag_optimizer,
 )
 from agents.openeuler_agents.os_group.network_agent import network_agent
 from agents.openeuler_agents.os_group.permissions_agent import permissions_agent
@@ -23,12 +21,14 @@ from agents.openeuler_agents.os_group.user_agent import user_agent
 from agents.openeuler_agents.security_group import (
     security_planner,
     security_step_scheduler,
+    security_rag_optimizer,
 )
 from agents.openeuler_agents.security_group.secscanner_agent import secscanner_agent
 from agents.openeuler_agents.security_group.syscare_agent import syscare_agent
 from agents.openeuler_agents.software_group import (
     software_planner,
     software_step_scheduler,
+    software_rag_optimizer,
 )
 from agents.openeuler_agents.software_group.sql_agent import sql_agent
 from agents.openeuler_agents.software_group.atune_agent import atune_agent
@@ -46,6 +46,7 @@ from agents.openeuler_agents.task_planner import (
     task_planner_rag,
     task_scheduler,
     task_scheduler_rag,
+    task_manager_rag
 )
 
 from agents.subtask_planner import(
@@ -56,26 +57,30 @@ from agents.cap_group_agents.CES_group import (
     CES_manager, CES_planner, CES_step_scheduler
 )
 from agents.cap_group_agents.ECS_group import (
-    ECS_manager, ECS_planner, ECS_step_scheduler
+    ECS_manager, ECS_planner, ECS_step_scheduler, ECS_rag_optimizer
 )
 from agents.cap_group_agents.EVS_group import (
     EVS_manager, EVS_planner, EVS_step_scheduler
 )
 from agents.cap_group_agents.IAM_service_group import (
-    IAM_service_manager, IAM_service_planner, IAM_service_step_scheduler
+    IAM_service_manager, IAM_service_planner, IAM_service_step_scheduler, IAM_rag_optimizer
 )
 from agents.cap_group_agents.IMS_group import (
-    IMS_manager, IMS_planner, IMS_step_scheduler
+    IMS_manager, IMS_planner, IMS_step_scheduler, IMS_rag_optimizer
 )
 from agents.cap_group_agents.VPC_network import (
-    VPC_network_manager, VPC_network_planner, VPC_network_step_scheduler
+    VPC_network_manager, VPC_network_planner, VPC_network_step_scheduler, VPC_network_rag_optimizer
 )
 from agents.cap_group_agents.CLUSTER_group import (
-    CLUSTER_manager, CLUSTER_planner, CLUSTER_step_scheduler
+    CLUSTER_manager, CLUSTER_planner, CLUSTER_step_scheduler, CLUSTER_rag_optimizer
 )
 from agents.cap_group_agents.NODE_group import (
-    NODE_manager, NODE_planner, NODE_step_scheduler
+    NODE_manager, NODE_planner, NODE_step_scheduler, NODE_rag_optimizer
 )
+from agents.openeuler_agents.file_group import (
+file_planner, file_step_scheduler, file_rag_optimizer
+)
+
 from agents.cap_group_agents import step_inspector
 
 from agents.cap_group_agents import (
@@ -125,97 +130,15 @@ from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
 
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
-from agents.cap_group_agents.ECS_group import (
-    ECS_manager, ECS_planner, ECS_step_scheduler
-)
-from agents.cap_group_agents.IAM_service_group import (
-    IAM_service_manager, IAM_service_planner, IAM_service_step_scheduler
-)
-from agents.cap_group_agents.IMS_group import (
-    IMS_manager, IMS_planner, IMS_step_scheduler
-)
-from agents.cap_group_agents.VPC_network import (
-    VPC_network_manager, VPC_network_planner, VPC_network_step_scheduler
-)
-
-from agents.cap_group_agents import (
-    basic_cap_solver, param_asker
-)
-
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_harddisk_agent import ECS_harddisk_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_instance_agent import ECS_instance_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_netcard_agent import ECS_netcard_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_recommend_agent import ECS_recommend_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_specification_query_agent import ECS_specification_query_agent
-
-from agents.cap_group_agents.IAM_service_group.cap_agents.AKSK_agent import AKSK_agent
-
-from agents.cap_group_agents.IMS_group.cap_agents.IMS_agent import IMS_agent
-
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_secgroup_agent import VPC_secgroup_agent
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_subnet_agent import VPC_subnet_agent
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_vpc_agent import VPC_vpc_agent
 
 from agents.basic_agents.api_agents import (
     API_param_selector, array_selector, param_selector, param_inspector, array_splitter
 )
 
-
-from agents.basic_agents.job_agent.tools.CheckLogForFailures import CheckLogForFailures
-from agents.basic_agents.api_agents.tools.CheckParamRequired import CheckParamRequired
-from agents.basic_agents.api_agents.tools.SelectAPIParam import SelectAPIParam
-from agents.basic_agents.api_agents.tools.SelectParamTable import SelectParamTable
-from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
-
-from agents.cap_group_agents.ECS_group import (
-    ECS_manager, ECS_planner, ECS_step_scheduler
-)
-from agents.cap_group_agents.IAM_service_group import (
-    IAM_service_manager, IAM_service_planner, IAM_service_step_scheduler
-)
-from agents.cap_group_agents.IMS_group import (
-    IMS_manager, IMS_planner, IMS_step_scheduler
-)
-from agents.cap_group_agents.VPC_network import (
-    VPC_network_manager, VPC_network_planner, VPC_network_step_scheduler
-)
-
-from agents.cap_group_agents import (
-    basic_cap_solver, param_asker
-)
-
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_harddisk_agent import ECS_harddisk_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_instance_agent import ECS_instance_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_netcard_agent import ECS_netcard_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_recommend_agent import ECS_recommend_agent
-from agents.cap_group_agents.ECS_group.cap_agents.ECS_specification_query_agent import ECS_specification_query_agent
-
-from agents.cap_group_agents.IAM_service_group.cap_agents.AKSK_agent import AKSK_agent
-
-from agents.cap_group_agents.IMS_group.cap_agents.IMS_agent import IMS_agent
-
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_secgroup_agent import VPC_secgroup_agent
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_subnet_agent import VPC_subnet_agent
-from agents.cap_group_agents.VPC_network.cap_agents.VPC_vpc_agent import VPC_vpc_agent
-
-
-
-from agents.basic_agents.api_agents import (
-    API_param_selector, array_selector, param_selector, param_inspector, array_splitter
-)
-
-from agents.basic_agents.job_agent.tools.CheckLogForFailures import CheckLogForFailures
-from agents.basic_agents.api_agents.tools.CheckParamRequired import CheckParamRequired
-from agents.basic_agents.api_agents.tools.SelectAPIParam import SelectAPIParam
-from agents.basic_agents.api_agents.tools.SelectParamTable import SelectParamTable
-from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
-
-from agents.openeuler_agents.file_group import (
-file_planner, file_step_scheduler
-)
 from agents.openeuler_agents.file_group.text_agent import text_agent
 from agents.openeuler_agents.file_group.file_io_agent import file_io_agent
 from agents.openeuler_agents.file_group.script_agent import script_agent
+
 load_dotenv()
 set_openai_key(os.getenv("OPENAI_API_KEY"))
 
@@ -257,11 +180,20 @@ def main():
         task_planner_rag_instance = task_planner_rag.create_agent()
         task_scheduler_rag_instance = task_scheduler_rag.create_agent()
         task_inspector_rag_instance = task_inspector_rag.create_agent()
+        task_manager_rag_instance = task_manager_rag.create_agent()
 
         software_rag_optimizer_instance = software_rag_optimizer.create_agent()
         security_rag_optimizer_instance = security_rag_optimizer.create_agent()
         os_rag_optimizer_instance = os_rag_optimizer.create_agent()
+        file_rag_optimizer_instance = file_rag_optimizer.create_agent()
 
+        ECS_rag_optimizer_instance = ECS_rag_optimizer.create_agent()
+        IAM_rag_optimizer_instance = IAM_rag_optimizer.create_agent()
+        IMS_rag_optimizer_instance = IMS_rag_optimizer.create_agent()
+        VPC_network_rag_optimizer_instance = VPC_network_rag_optimizer.create_agent()
+        # CLUSTER_rag_optimizer_instance = CLUSTER_rag_optimizer.create_agent()
+        # NODE_rag_optimizer_instance = NODE_rag_optimizer.create_agent()
+        
         subtask_planner_instance = subtask_planner.create_agent()
         subtask_scheduler_instance = subtask_scheduler.create_agent()
         subtask_inspector_instance = subtask_inspector.create_agent()
@@ -372,10 +304,21 @@ def main():
             task_planner_rag_instance,
             task_scheduler_rag_instance,
             task_inspector_rag_instance,
+            task_manager_rag_instance,
             # task optimize rag
+                # openeuler
             software_rag_optimizer_instance,
             security_rag_optimizer_instance,
             os_rag_optimizer_instance,
+            file_rag_optimizer_instance,
+                # 华为云
+            ECS_rag_optimizer_instance,
+            IAM_rag_optimizer_instance,
+            IMS_rag_optimizer_instance,
+            VPC_network_rag_optimizer_instance,
+            # CLUSTER_rag_optimizer_instance,
+            # NODE_rag_optimizer_instance,
+            
             # subtask
             subtask_planner_instance,
             subtask_scheduler_instance,
@@ -408,8 +351,6 @@ def main():
             # CLUSTER_step_scheduler_instance,
             # NODE_planner_instance, 
             # NODE_step_scheduler_instance,
-            comprehensive_planner_instance, 
-            comprehensive_step_scheduler_instance, 
             # 软件能力 agent
             package_agent_instance,
             repository_agent_instance,
@@ -441,9 +382,8 @@ def main():
             IMS_planner_instance, IMS_step_scheduler_instance,
             #   OS_planner, OS_step_scheduler,
             VPC_network_planner_instance, VPC_network_step_scheduler_instance,
-            CLUSTER_planner_instance, CLUSTER_step_scheduler_instance,
-            NODE_planner_instance, NODE_step_scheduler_instance,
-
+            # CLUSTER_planner_instance, CLUSTER_step_scheduler_instance,
+            # NODE_planner_instance, NODE_step_scheduler_instance,
 
             file_planner_instance, file_step_scheduler_instance, text_agent_instance,file_io_agent_instance,script_agent_instance,
             #   [subtask_manager, CES_manager],
@@ -528,8 +468,7 @@ def main():
             user_agent_instance,
             basic_agent_instance
 
-
-]
+        ]
 
         thread_strategy = {
             "always_new": [
@@ -566,6 +505,7 @@ def main():
             "task_planner_rag": task_planner_rag_instance,
             "task_scheduler_rag": task_scheduler_rag_instance,
             "task_inspector_rag": task_inspector_rag_instance,
+            "task_manager_rag": task_manager_rag_instance
         }
 
         cap_group_agents = {
@@ -585,9 +525,19 @@ def main():
         }
 
         cap_group_agents_rag = {
+            #openEuler能力群
             "软件能力群": [software_rag_optimizer_instance],
             "安全能力群": [security_rag_optimizer_instance],
             "操作系统能力群": [os_rag_optimizer_instance],
+            "文件能力群": [file_rag_optimizer_instance],
+
+            #华为云能力群
+            "弹性云服务器(ECS)管理能力群": [ECS_rag_optimizer_instance, ECS_manager_instance],
+            "统一身份认证服务IAM能力群": [IAM_rag_optimizer_instance, IAM_service_manager_instance],
+            "镜像管理能力群": [IMS_rag_optimizer_instance, IMS_manager_instance],
+            "VPC网络管理能力群": [VPC_network_rag_optimizer_instance, VPC_network_manager_instance],
+            # "集群管理能力群": [CLUSTER_rag_optimizer_instance, CLUSTER_manager_instance],
+            # "节点管理能力群": [NODE_rag_optimizer_instance, NODE_manager_instance],
         }
 
         cap_agents = {
@@ -608,6 +558,8 @@ def main():
                 user_agent_instance,
                 basic_agent_instance,
             ],
+            "文件能力群": [text_agent_instance,file_io_agent_instance,script_agent_instance],
+
             # 华为云能力群
             "弹性云服务器(ECS)管理能力群": [
                 ECS_harddisk_agent_instance, 
@@ -636,13 +588,24 @@ def main():
             #     NODE_scaling_protect_agent_instance
             # ],
             "简单任务处理能力群": [basic_cap_solver_instance],
-            "文件能力群": [text_agent_instance,file_io_agent_instance,script_agent_instance]
-
         }
-        text = """华为云上有一台ID为f180a3f5-d43b-4f71-8fb1-955567fa220e的服务器，
-        绑定的安全组id为b9841bfe-6dd9-4d9a-b96a-79cd53911b0c，该服务器正在升级，请通过删除全通入方向规则的实现切断其所有入站流量。"""
-        # text = """华为云上有一台ID为f180a3f5-d43b-4f71-8fb1-955567fa220e的服务器，绑定的安全组id为e5aa3e03-0870-416c-9dd9-3e8ce6ac22ef，请获取安全组的具体的规则。"""
-        # text = """在121.36.210.47的服务器上使用已安装并配置好的secScanner工具扫描该机器的CVE漏洞。确保使用root用户进行免密登录。"""
+
+        text='''
+            我在华为云上有1台ECS服务器，操作系统为linux，区域：“华北-北京四”，regionID：cn-north-4，尚未安装CES Agent。这台ECS主机的IP地址和root用户密码是1.92.92.89,7788hxr@。为能实现这台ECS的CES主机监控，需要为该主机安装CES Agent插件，应如何操作？
+            已获取linux系统单台主机安装CES Agent插件的安装命令如下：
+            cd /usr/local && curl -k -O https://uniagent-cn-north-4.obs.cn-north-4.myhuaweicloud.com/package/agent_install.sh && bash agent_install.sh -r cn-north-4 -u 0.2.3 -t 2.7.6 -o myhuaweicloud.com
+            安装成功后，请为这台ECS手工配置Agent，配置参数如下：
+            "InstanceId":""为空,    
+            "ProjectId":""为空,    
+            "AccessKey": "HPUA6OTZSNJAIP5S3WW6",    
+            "SecretKey": "2yfEbJ7FEfDrR530KinIrd2h9aXuioHK6a3T19Ic",    
+            "RegionId": "cn-north-4",    
+            "ClientPort": 0,    
+            "PortNum": 200
+        '''
+        # text = """我有一台鲲鹏服务器，操作系统是openEuler22.03，我想在此鲲鹏服务器上安装并配置以下数据库环境：MySQL 8.0.25，设置字符集为 UTF8MB4，端口号为 3306。请确保所有数据库服务均能正常启动，并设置为开机自启动。应该如何操作？"""
+        # text ="""我有一台鲲鹏服务器，操作系统是openEuler22.03，我想在此鲲鹏服务器上安装并配置以下数据库环境：PostgreSQL 11.3，启用远程连接，端口号为 5432。请确保所有数据库服务均能正常启动，并设置为开机自启动。应该如何操作？"""
+
         files_path = os.path.join("agents", "files")
         comtext_tree = os.path.join(files_path, "context_tree.json")
         # 确保文件目录存在
