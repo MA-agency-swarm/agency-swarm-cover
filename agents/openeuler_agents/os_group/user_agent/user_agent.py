@@ -2,6 +2,7 @@ from agency_swarm import Agent
 
 from agents.openeuler_agents.openeuler_agent_instruction import openeuler_agent_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
 
@@ -19,7 +20,7 @@ _description = """
 
 3. 查询用户的登录状态和活动进程：可使用如下命令:
    - ps -u <用户名>
-   - 不要使用 ps aux | grep <用户名> 
+   - 注意不要使用 ps aux | grep <用户名> 
       
 4. 支持其他用户相关的管理操作
 
@@ -30,7 +31,7 @@ import os
 current_path = os.path.abspath(os.path.dirname(__file__))
 _instruction = openeuler_agent_instruction(_name,_description)
 
-_tools = [ReadJsonFile, SSHExecuteCommand]
+_tools = [ReadJsonFile, SSHExecuteCommand,ReadFile.ReadFile]
 
 _file_folder = ""
 

@@ -30,6 +30,7 @@ from agents.openeuler_agents.software_group import (
     software_planner,
     software_step_scheduler,
 )
+from agents.openeuler_agents.software_group.sql_agent import sql_agent
 from agents.openeuler_agents.software_group.atune_agent import atune_agent
 from agents.openeuler_agents.software_group.package_agent import package_agent
 from agents.openeuler_agents.software_group.repository_agent import repository_agent
@@ -209,24 +210,25 @@ from agents.basic_agents.api_agents.tools.SelectAPIParam import SelectAPIParam
 from agents.basic_agents.api_agents.tools.SelectParamTable import SelectParamTable
 from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
 
-from agents.openeuler_agents.comprehensive_group import (
-comprehensive_planner, comprehensive_step_scheduler
+from agents.openeuler_agents.file_group import (
+file_planner, file_step_scheduler
 )
-from agents.openeuler_agents.comprehensive_group.text_agent import text_agent
-
+from agents.openeuler_agents.file_group.text_agent import text_agent
+from agents.openeuler_agents.file_group.file_io_agent import file_io_agent
+from agents.openeuler_agents.file_group.script_agent import script_agent
 load_dotenv()
 set_openai_key(os.getenv("OPENAI_API_KEY"))
 
 
 def main():
-    # 添加日志功能：创建一个日志文件，用当前时间作为文件名
+    # 添加日志功能:创建一个日志文件,用当前时间作为文件名
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file_path = os.path.join("log", f"run_log_{timestamp}.txt")
 
     # 创建日志文件
     log_file = open(log_file_path, "w", encoding="utf-8", buffering=1)
 
-    # 创建自定义的输出类，同时将输出发送到文件和终端
+    # 创建自定义的输出类,同时将输出发送到文件和终端
     class TeeOutput:
         def __init__(self, file, terminal):
             self.file = file
@@ -240,7 +242,7 @@ def main():
             self.terminal.flush()
             self.file.flush()
 
-    # 保存原始的stdout，并设置新的输出重定向
+    # 保存原始的stdout,并设置新的输出重定向
     original_stdout = sys.stdout
     sys.stdout = TeeOutput(log_file, original_stdout)
 
@@ -274,6 +276,7 @@ def main():
         package_agent_instance = package_agent.create_agent()
         repository_agent_instance = repository_agent.create_agent()
         atune_agent_instance = atune_agent.create_agent()
+        sql_agent_instance = sql_agent.create_agent()
 
         security_planner_instance = security_planner.create_agent()
         security_step_scheduler_instance = security_step_scheduler.create_agent()
@@ -287,9 +290,31 @@ def main():
         user_agent_instance = user_agent.create_agent()
         basic_agent_instance = basic_agent.create_agent()
 
-        comprehensive_planner_instance = comprehensive_planner.create_agent()
-        comprehensive_step_scheduler_instance = comprehensive_step_scheduler.create_agent()
+        check_log_agent_instance = check_log_agent.create_agent()
+
+        basic_cap_solver_instance = basic_cap_solver.create_agent()
+        param_asker_instance = param_asker.create_agent()
+
+        file_planner_instance = file_planner.create_agent()
+        file_step_scheduler_instance = file_step_scheduler.create_agent()
         text_agent_instance = text_agent.create_agent()
+        file_io_agent_instance = file_io_agent.create_agent()
+        script_agent_instance = script_agent.create_agent()
+        # repeater = repeater.create_agent()
+        # rander = rander.create_agent()
+        # palindromist = palindromist.create_agent()
+
+        # simulator = simulator.create_agent()
+
+        # CES_planner = CES_planner.create_agent()
+        # CES_manager = CES_manager.create_agent()
+        # CES_step_scheduler = CES_step_scheduler.create_agent()
+        # CES_alarm_history_agent = CES_alarm_history_agent.create_agent()
+        # CES_alarm_rule_agent = CES_alarm_rule_agent.create_agent()
+        # CES_dashboard_agent = CES_dashboard_agent.create_agent()
+        # CES_data_agent = CES_data_agent.create_agent()
+        # CES_event_agent = CES_event_agent.create_agent()
+        # CES_metric_agent = CES_metric_agent.create_agent()
 
         ECS_planner_instance = ECS_planner.create_agent()
         ECS_manager_instance = ECS_manager.create_agent()
@@ -389,6 +414,7 @@ def main():
             package_agent_instance,
             repository_agent_instance,
             atune_agent_instance,
+            sql_agent_instance,
             # 安全能力 agent
             secscanner_agent_instance,
             syscare_agent_instance,
@@ -400,7 +426,44 @@ def main():
             #综合能力群
             text_agent_instance,
 
-            #VPC能力群
+            #华为云agent
+            step_inspector_instance,
+            basic_cap_solver_instance, param_asker_instance,
+            array_splitter_instance,
+            param_inspector_instance,
+
+            check_log_agent_instance,
+            #   CES_planner, CES_step_scheduler,
+            ECS_planner_instance, ECS_step_scheduler_instance,
+            #   EVS_planner, EVS_step_scheduler,
+            #   Huawei_Cloud_API_planner, Huawei_Cloud_API_step_scheduler,
+            #   IAM_service_planner, IAM_service_step_scheduler,
+            IMS_planner_instance, IMS_step_scheduler_instance,
+            #   OS_planner, OS_step_scheduler,
+            VPC_network_planner_instance, VPC_network_step_scheduler_instance,
+            CLUSTER_planner_instance, CLUSTER_step_scheduler_instance,
+            NODE_planner_instance, NODE_step_scheduler_instance,
+
+
+            file_planner_instance, file_step_scheduler_instance, text_agent_instance,file_io_agent_instance,script_agent_instance,
+            #   [subtask_manager, CES_manager],
+            # [subtask_manager, ECS_manager],
+            #   [subtask_manager, EVS_manager],
+            # [subtask_manager, IMS_manager],
+            #   [subtask_manager, OS_manager],
+            # [subtask_manager, VPC_network_manager],
+
+            # [ECS_manager, subtask_manager],
+            # [IMS_manager, subtask_manager],
+            # [VPC_network_manager, subtask_manager],
+
+            #   [CES_manager, CES_alarm_history_agent],
+            #   [CES_manager, CES_alarm_rule_agent],
+            #   [CES_manager, CES_dashboard_agent],
+            #   [CES_manager, CES_data_agent],
+            #   [CES_manager, CES_metric_agent],
+            #   [CES_manager, CES_event_agent],
+
             [ECS_manager_instance, ECS_harddisk_agent_instance],
             [ECS_manager_instance, ECS_instance_agent_instance],
             [ECS_manager_instance, ECS_netcard_agent_instance],
@@ -518,7 +581,7 @@ def main():
             # "集群管理能力群": [CLUSTER_planner_instance, CLUSTER_manager_instance, CLUSTER_step_scheduler_instance],
             # "节点管理能力群": [NODE_planner_instance, NODE_manager_instance, NODE_step_scheduler_instance],
             "简单任务处理能力群": [basic_cap_solver_instance],
-            "综合能力群": [comprehensive_planner_instance, comprehensive_step_scheduler_instance]
+            "文件能力群": [file_planner_instance, file_step_scheduler_instance]
         }
 
         cap_group_agents_rag = {
@@ -533,6 +596,7 @@ def main():
                 package_agent_instance,
                 repository_agent_instance,
                 atune_agent_instance,
+                sql_agent_instance,
             ],
             "安全能力群": [
                 secscanner_agent_instance,
@@ -572,9 +636,7 @@ def main():
             #     NODE_scaling_protect_agent_instance
             # ],
             "简单任务处理能力群": [basic_cap_solver_instance],
-            "综合能力群": [
-                text_agent_instance
-            ]
+            "文件能力群": [text_agent_instance,file_io_agent_instance,script_agent_instance]
 
         }
         text = """华为云上有一台ID为f180a3f5-d43b-4f71-8fb1-955567fa220e的服务器，
@@ -610,7 +672,7 @@ def main():
                     cap_agents=cap_agents,
                     request_id=request_id,
                 )
-            text = input("请输入新的请求描述（或输入exit退出）：")
+            text = input("请输入新的请求描述（或输入exit退出）:")
             log_file.write(text + "\n")
             log_file.flush()
             if text.lower() == "exit":
@@ -620,7 +682,8 @@ def main():
         # 关闭日志文件和恢复标准输出
         sys.stdout = original_stdout
         log_file.close()
-        print(f"日志已保存到：{log_file_path}")
+        print(f"日志已保存到:{log_file_path}")
+        
 
 
 if __name__ == "__main__":

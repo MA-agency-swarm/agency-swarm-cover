@@ -7,7 +7,8 @@ from agents.basic_agents.job_agent.tools.CallAPI import CallAPI
 from agents.cap_group_agents.VPC_network.tools import (
     GetEndPointAndProjectID, AskManagerParams
 )
-from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile 
+from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile 
 _name = "VPC_subnet_agent"
 _manager_name = "VPC_network_manager"
 _description = """

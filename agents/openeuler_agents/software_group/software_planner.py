@@ -1,6 +1,7 @@
 from agency_swarm import Agent
 from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 
 _name = "software_planner"
 
@@ -8,6 +9,7 @@ _description = """
 负责软件能力群的步骤规划
 ** 注意**
 1. ssh客户端不保存状态，规划的时候不要单独规划 **进入目录**步骤，应该与具体的执行步骤合并。
+2. 不要单独规划“生成脚本”任务，智能体可以自己根据上下文编写脚本
 """
 
 _group_name = "软件能力群"
@@ -24,6 +26,7 @@ _agents = """
 1. **package_agent**: 负责使用yum等包管理器对软件包进行查询、安装、删除等操作。
 2. **repository_agent**: 负责使用git管理代码仓库的更改，例如导出commit等。
 3. **atune_agent**: 负责使用A-Tune工具优化OpenEuler系统上的软件配置，提升应用性能。
+4. **sql_agent**: 负责使用mysql等语句对数据库进行管理
 """
 
 _output_format = """
@@ -41,7 +44,7 @@ _output_format = """
 
 _instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)
 
-_tools = [ReadJsonFile]
+_tools = [ReadJsonFile,ReadFile.ReadFile]
 
 _file_folder = ""
 

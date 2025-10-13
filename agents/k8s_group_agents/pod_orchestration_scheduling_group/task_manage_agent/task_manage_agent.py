@@ -2,6 +2,7 @@ from agency_swarm import Agent
 
 from agents.k8s_group_agents.k8s_agent_instruction import k8s_agent_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
 from agents.k8s_group_agents.tools.ExecuteCommand import ExecuteCommand
 
 _name = "task_manage_agent"

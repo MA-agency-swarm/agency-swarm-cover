@@ -5,6 +5,8 @@ from agents.cap_group_agents.OS_group.cap_agents.OS_agent.tools import (
 from agents.cap_group_agents.cap_agent_instruction import cap_agent_instruction
 from agents.basic_agents.job_agent.tools.CallAPI import CallAPI
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
+from agents.basic_agents.job_agent.tools import ReadFile
+
 _name = "OS_agent"
 _manager_name = "OS_manager"
 _description = """
