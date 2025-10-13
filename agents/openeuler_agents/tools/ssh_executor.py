@@ -17,7 +17,7 @@ class SSHCommandExecutor:
 
     def connect(self):
         if self._is_connected:
-            return True
+            return [True,""]
         try:
             print(f"\n[DEBUG]正在连接到{self.hostname}:{self.port}...")
             self.client.connect(
@@ -29,24 +29,25 @@ class SSHCommandExecutor:
             )
             print(f"\n[DEBUG]成功连接到 {self.hostname}:{self.port}.")
             self._is_connected = True
-            return True
+            return [True,""]
         except paramiko.AuthenticationException:
             print("\n[DEBUG]Authentication failed: Invalid username or password.")
             self.close()
-            return False
+            return [False,"Authentication failed: Invalid username or password."]
         except paramiko.SSHException as e:
             print(f"\n[DEBUG]SSH connection error: {e}")
             self.close()
-            return False
+            return [False,f"SSH connection error: {e}"]
         except Exception as e:
             print(f"\n[DEBUG]An unknown error occurred during connection: {e}")
             self.close()
-            return False
+            return [False,f"An unknown error occurred during connection: {e}"]
 
     def execute_command_stream(self, command, buffer_size=4096):
         if not self._is_connected:
-            if not self.connect():  # Attempt to connect, and check if it was successful
-                yield "__error__", "Failed to connect to SSH server."
+            ok, msg = self.connect()
+            if not ok:  # Attempt to connect, and check if it was successful
+                yield "__error__", msg
                 return  # If connection fails, stop execution
         stdout_data_full = []
         stderr_data_full = []

@@ -3,13 +3,13 @@ from agents.openeuler_agents.planner_instruction import planner_instruction
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 from agents.basic_agents.job_agent.tools import ReadFile
 
-_name = "comprehensive_planner"
+_name = "file_planner"
 
 _description = """
-综合能力群的步骤规划
+文件能力群的步骤规划
 """
 
-_group_name = "综合能力群"
+_group_name = "文件能力群"
 
 _input_format = """
 {
@@ -20,7 +20,9 @@ _input_format = """
 """
 
 _agents = """
-1. **text_agent**: 负责对当前任务进行分析并输出文本结果。
+1. **text_agent**: 负责对当前任务进行分析并输出文本结果。（只会对上下文进行分析，不能对目标运维环境的文件进行读写）
+2. **file_io_agent**: 负载对运维目标环境中的可编辑文件进行读写
+3. **script_agent**: 负责执行脚本文件、查看脚本文件是否正常运行
 """
 
 _output_format = """
@@ -36,7 +38,7 @@ _output_format = """
 }
 """
 
-_instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)+"注意：请规划尽可能少的步骤完成需求，并且尽可能避免规划归纳总结类步骤，能力agnet具有自己收集上下文信息的能力"
+_instruction = planner_instruction(_group_name, _input_format, _agents, _output_format)+"注意：1. 尽可能避免规划归纳总结类步骤,能力agnet具有自己收集上下文信息的能力;2. 不要单独规划编写脚本的任务，智能体可以直接生成并部署脚本；3. 脚本**执行**后，请仔细判断脚本有没有正常运行"+"python类型脚本运行之后的出错可能不会在标准输出中体现，请规划步骤检查运行后的输出日志"
 
 _tools = [ReadJsonFile,ReadFile.ReadFile]
 

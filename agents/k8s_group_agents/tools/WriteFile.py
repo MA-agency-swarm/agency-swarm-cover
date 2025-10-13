@@ -30,4 +30,4 @@ class WriteFile(BaseTool):
 
         if "该任务执行失败" in check_result:
             return {"tool": "WriteFile", "result": "FAIL", "context": check_result}
-        return {"tool": "WriteFile",  "result": "SUCCESS", "context": check_result}
+        return {"tool": "WriteFile",  "result": "SUCCESS", "context": check_result, "text_result": file_name_time}

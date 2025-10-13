@@ -10,7 +10,6 @@ _name = "basic_agent"
 _description = """
 本Agent专用于管理OpenEuler系统的基础命令，包含但不限于目录、文件的操作：
 1. 文件和目录操作：查看、复制文件和目录
-
 例如：
 - 查看当前目录内容：ls -l
 - 查看文件的内容：cat <文件名>

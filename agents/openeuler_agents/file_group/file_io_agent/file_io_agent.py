@@ -6,13 +6,16 @@ from agents.basic_agents.job_agent.tools import ReadFile
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
 
-_name = "sql_agent"
+_name = "file_io_agent"
 _description = """
-负责使用mysql语句管理数据库
+负责使用echo、cat等命令对可编辑文件进行读写。
 注意：
 1. cd命令和其他命令一起执行，使用`&&`连接；
-2. 设置主从复制用户时，尽量修改用户插件为mysql_native_password并执行FLUSH PRIVILEGES;以避免SSL设置
-3. 你需要仔细从上下文分析出连接到数据库的用户名和密码信息，不要随意生成
+2. 若要写入脚本内容，请自己根据用户请求生成正确的、可在OpenEuler环境中可执行的脚本并写入目标环境
+3. 读取文件时，尽量避免一次性输出完整内容，须进行分块或截取读取，以防止文本超长。默认只读取文件的前后部分，例如：
+cd /path && head -n 50 filename
+或
+cd /path && tail -n 50 filename
 """
 
 import os

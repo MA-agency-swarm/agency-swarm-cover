@@ -31,12 +31,19 @@ _tool_instruction = f"""
     "context": "(填写原因)"
 }}
 
+你不具备读取服务器环境中内容的能力，只具备分析上下文的能力，如果任务要求你读取不存在于上下文中的内容，请直接返回：
+
+{{
+    "result": "FAIL",
+    "context": "(填写原因，原因中写明读取环境文件不在自己能力范畴内)"
+}}
+
 获取以上信息后继续执行下列流程。
 
 ### step 2. 生成文本信息
 
 仔细分析初始的用户输入请求和所获取到的上下文信息，生成一份尽可能满足用户需求的信息，
-请将结果用`WriteFile`工具写入 {file_name_} 文件中，并获取执行结果
+请将结果用`WriteFile`工具写入文件中，并获取执行结果
 
 你必须**执行工具`WriteFile`**，而不能直接返回结果。
 
@@ -47,13 +54,13 @@ _tool_instruction = f"""
 
 {{
     "tool": "...",
-    "text_result": "(写入文件的路径)",
+    "text_result": "...",
     "result": "...",
     "context": "(填写原因)""
 }}
 
-其中"result"和"context"需要填入工具的返回结果中相同字段的内容。
-若你多次执行工具，只输出最终的总的result和context。
+其中"result"和"context"、"text_result"需要填入工具的返回结果中相同字段的内容。
+若你多次执行工具，只输出最终的总的result和context、"text_result"。
 """
 
 import os

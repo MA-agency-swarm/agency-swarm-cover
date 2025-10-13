@@ -135,23 +135,25 @@ from agents.basic_agents.api_agents.tools.SplitArray import SplitArray
 
 from agents.openeuler_agents.tools.SSHExecuteCommand import SSHExecuteCommand
 
-from agents.openeuler_agents.comprehensive_group import (
-comprehensive_planner, comprehensive_step_scheduler
+from agents.openeuler_agents.file_group import (
+file_planner, file_step_scheduler
 )
-from agents.openeuler_agents.comprehensive_group.text_agent import text_agent
+from agents.openeuler_agents.file_group.text_agent import text_agent
+from agents.openeuler_agents.file_group.file_io_agent import file_io_agent
+from agents.openeuler_agents.file_group.script_agent import script_agent
 load_dotenv()
 set_openai_key(os.getenv("OPENAI_API_KEY"))
 
 
 def main():
-    # 添加日志功能：创建一个日志文件，用当前时间作为文件名
+    # 添加日志功能:创建一个日志文件,用当前时间作为文件名
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file_path = os.path.join("log", f"run_log_{timestamp}.txt")
 
     # 创建日志文件
     log_file = open(log_file_path, "w", encoding="utf-8", buffering=1)
 
-    # 创建自定义的输出类，同时将输出发送到文件和终端
+    # 创建自定义的输出类,同时将输出发送到文件和终端
     class TeeOutput:
         def __init__(self, file, terminal):
             self.file = file
@@ -165,7 +167,7 @@ def main():
             self.terminal.flush()
             self.file.flush()
 
-    # 保存原始的stdout，并设置新的输出重定向
+    # 保存原始的stdout,并设置新的输出重定向
     original_stdout = sys.stdout
     sys.stdout = TeeOutput(log_file, original_stdout)
 
@@ -216,10 +218,11 @@ def main():
         basic_cap_solver_instance = basic_cap_solver.create_agent()
         param_asker_instance = param_asker.create_agent()
 
-        comprehensive_planner_instance = comprehensive_planner.create_agent()
-        comprehensive_step_scheduler_instance = comprehensive_step_scheduler.create_agent()
+        file_planner_instance = file_planner.create_agent()
+        file_step_scheduler_instance = file_step_scheduler.create_agent()
         text_agent_instance = text_agent.create_agent()
-
+        file_io_agent_instance = file_io_agent.create_agent()
+        script_agent_instance = script_agent.create_agent()
         # repeater = repeater.create_agent()
         # rander = rander.create_agent()
         # palindromist = palindromist.create_agent()
@@ -361,7 +364,7 @@ def main():
             NODE_planner_instance, NODE_step_scheduler_instance,
 
 
-            comprehensive_planner_instance, comprehensive_step_scheduler_instance, text_agent_instance,
+            file_planner_instance, file_step_scheduler_instance, text_agent_instance,file_io_agent_instance,script_agent_instance,
             #   [subtask_manager, CES_manager],
             # [subtask_manager, ECS_manager],
             #   [subtask_manager, EVS_manager],
@@ -532,7 +535,7 @@ def main():
             "集群管理能力群": [CLUSTER_planner_instance, CLUSTER_manager_instance, CLUSTER_step_scheduler_instance],
             "节点管理能力群": [NODE_planner_instance, NODE_manager_instance, NODE_step_scheduler_instance],
             "简单任务处理能力群": [basic_cap_solver_instance],
-            "综合能力群": [comprehensive_planner_instance, comprehensive_step_scheduler_instance]
+            "文件能力群": [file_planner_instance, file_step_scheduler_instance]
         }
 
         cap_group_agents_rag = {
@@ -569,32 +572,48 @@ def main():
             "VPC网络管理能力群": [VPC_secgroup_agent_instance, VPC_subnet_agent_instance, VPC_vpc_agent_instance],
             "集群管理能力群": [CLUSTER_lifecycle_agent_instance, CLUSTER_specification_change_agent_instance],
             "节点管理能力群": [NODE_lifecycle_agent_instance, NODE_pool_agent_instance, NODE_scaling_protect_agent_instance],
-            "综合能力群": [text_agent_instance]
+            "文件能力群": [text_agent_instance,file_io_agent_instance,script_agent_instance]
 
         }
 
-       # text = """当前账户有两个名称分别为为TEST-DB-1（id：8fbf562f-fe30-493b-bb1c-2a1e6178b077）、TEST-DB-2（id：81cb6eff-7d57-4669-92e7-2e3c97616f15）的ECS实例，ip地址为：1.92.124.187、120.46.169.42；其操作系统都是用户名为root ，密码都为Abcd1234；这两台服务器配置有MySQL数据库主从集群，主库用户名root，密码为YourPass123!,从库用户名为root，密码为YourPass123!；
-        #服务器均已开启请你连接到该MySQL数据库集群，然后基于当前的MySQL集群配置和业务需求，请制定一个异地灾备方案。我们的RTO目标是30分钟，RPO目标是5分钟，请考虑成本效益和性能影响，在方案中，请特别说明如何处理跨区域的网络延迟问题，请提供至少两种可选的灾备策略，并分析各自的优缺点。（只需要在一个文档中输出）"   
+       # text = """当前账户有两个名称分别为为TEST-DB-1（id:8fbf562f-fe30-493b-bb1c-2a1e6178b077）、TEST-DB-2（id:81cb6eff-7d57-4669-92e7-2e3c97616f15）的ECS实例,ip地址为:1.92.124.187、120.46.169.42；其操作系统都是用户名为root ,密码都为Abcd1234；这两台服务器配置有MySQL数据库主从集群,主库用户名root,密码为StrongPass123!,从库用户名为root,密码为StrongPass123!；
+        #服务器均已开启请你连接到该MySQL数据库集群,然后基于当前的MySQL集群配置和业务需求,请制定一个异地灾备方案。我们的RTO目标是30分钟,RPO目标是5分钟,请考虑成本效益和性能影响,在方案中,请特别说明如何处理跨区域的网络延迟问题,请提供至少两种可选的灾备策略,并分析各自的优缺点。（只需要在一个文档中输出）"   
          #  """
-        text = """- 请配置测试环境ECS服务器DR-1和DR2主备数据库之间的复制（二者处于一个私有vpc之下）。
-  主库和从库的sql都已经安装好，密码也已经设置好，而且两个ECS示例都已经安装好UniAgent，
-  
-  注意：设置主从数据库时，请禁用SSL配置，避免握手时启用SSL
+        text = """
+当前账户有两个ECS示例，已配置好主从数据库配置，具体访问信息如下
 
-  主库的访问信息如下：
-  服务器名称：DR-0001，实例id：9bad34c0-cb1b-4113-a6aa-b6187c8ba42a，弹性公网ip：124.70.75.130，私有ip：10.0.0.120；
-  操作系统配置 用户：root, 密码：Abcd1234
-  数据库访问信息：用户名：root 密码：StrongPass123!
+主库的访问信息：
+ip地址：123.249.113.119
+操作系统（OpenEuler）访问信息：
+用户名：root
+密码：Abcd1234
+mysql（8.0.43）访问信息：
+用户名：root，密码：StrongPass123!
 
-  从库的访问信息如下：
-  服务器名称：DR-0002，实例id：effac639-4ff2-48d9-81de-d46a612aa06c，弹性公网ip：124.70.6.238，私有IP：10.0.0.142；
-  操作系统配置 用户：root, 密码：Abcd1234
-  数据库访问信息：用户名：root 密码：StrongPass123!。
+从库的访问信息：
+ip地址：121.36.102.231
+操作系统（OpenEuler）访问信息：
+用户名：root
+密码：Abcd1234
+mysql（8.0.43）访问信息：
+用户名：root，密码：StrongPass123!
+从库的数据库是只读的
 
-  额外要求如下
-  1. 设置复制账户，用户名为'repl_user'，密码：StrongPass123!。"
-  2. 部署完成后，请生成一份的部署文档，介绍配置步骤和参数。"""
-        # text ="""我有一台鲲鹏服务器，操作系统是openEuler22.03，我想在此鲲鹏服务器上安装并配置以下数据库环境：MySQL 8.0.25，设置字符集为 UTF8MB4，端口号为 3306。请确保所有数据库服务均能正常启动，并设置为开机自启动。使用源代码编译方式安装MySQL，已下载MySQL 8.0.25源码在/home/mysql-8.0.25目录下。应该如何操作？"""
+复制账户信息：
+用户名：repl_user,密码：StrongPass123!
+
+二者处在一个VPC中，主库和从库的私有IP分别是：10.0.0.160、10.0.0.26；
+
+请设计并执行一个灾备测试用例，用于网络中断场景。
+然后在上述环境中进行测试，在测试过程中，请模拟每秒约1000次写入操作。
+请给出测试用例的详细结果，包括复制延迟、数据一致性检查结果。
+如发现问题，请提供详细问题描述和解决建议。
+
+注意：
+测试过程中所用到和生成的脚本文件请都存在/root/testdb/ 目录(已经创建)中，生成的分析文档类文件不必存入目标环境
+为了节省性能，请你尽可能晚进行模拟业务写入操作
+"""
+        # text ="""我有一台鲲鹏服务器,操作系统是openEuler22.03,我想在此鲲鹏服务器上安装并配置以下数据库环境:MySQL 8.0.25,设置字符集为 UTF8MB4,端口号为 3306。请确保所有数据库服务均能正常启动,并设置为开机自启动。使用源代码编译方式安装MySQL,已下载MySQL 8.0.25源码在/home/mysql-8.0.25目录下。应该如何操作？"""
 
         files_path = os.path.join("agents", "files")
         comtext_tree = os.path.join(files_path, "context_tree.json")
@@ -625,7 +644,7 @@ def main():
                     cap_agents=cap_agents,
                     request_id=request_id,
                 )
-            text = input("请输入新的请求描述（或输入exit退出）：")
+            text = input("请输入新的请求描述（或输入exit退出）:")
             log_file.write(text + "\n")
             log_file.flush()
             if text.lower() == "exit":
@@ -635,7 +654,8 @@ def main():
         # 关闭日志文件和恢复标准输出
         sys.stdout = original_stdout
         log_file.close()
-        print(f"日志已保存到：{log_file_path}")
+        print(f"日志已保存到:{log_file_path}")
+        
 
 
 if __name__ == "__main__":

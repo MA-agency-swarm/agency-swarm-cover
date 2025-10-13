@@ -3,13 +3,13 @@ from agents.openeuler_agents.step_scheduler_instruction import step_scheduler_in
 from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 from agents.basic_agents.job_agent.tools import ReadFile
 
-_name = "comprehensive_step_scheduler"
+_name = "file_step_scheduler"
 
 _description = """
-职责是调度综合能力群的step，选出下一步可以执行的step
+职责是调度文件能力群的step，选出下一步可以执行的step
 """
 
-_group_name = "安全能力群"
+_group_name = "文件能力群"
 
 _input_format = """
 {
