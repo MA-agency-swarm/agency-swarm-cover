@@ -1,0 +1,12 @@
+from agency_swarm.tools import BaseTool
+from pydantic import Field
+import os
+
+class GetEndPointAndProjectID(BaseTool):
+    def run(self):
+        project = os.getenv("PROJECT")
+        project_id = os.getenv("PROJECT_ID")
+        return {
+            "endpoint": f"vpc.{project}.myhuaweicloud.com",
+            "project_id": project_id
+        }

@@ -12,9 +12,8 @@ _group_name = "配置管理能力群"
 
 _input_format = """
 {
-    "title": <任务名称>,
-    "description": <任务描述>,
-    "total_subtask_graph": <所有子任务的规划图>,
+    "title": <本次子任务的名称>,
+    "description": <本次子任务的描述>
 }
 """
 
@@ -30,7 +29,7 @@ _output_format = """
         "id": 步骤ID, 
         "agent": [agent_name_1, ...],
         "description": 步骤描述, 
-        "dep": <前置步骤ID列表>,
+        "dep": <前置步骤ID列表>
     },
     ...
 }

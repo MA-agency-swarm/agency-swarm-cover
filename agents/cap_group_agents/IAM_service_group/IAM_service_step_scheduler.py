@@ -5,10 +5,10 @@ from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 _name = "IAM_service_step_scheduler"
 
 _description = """
-职责是调度统一身份认证IAM能力群的step，选出下一步可以执行的step
+职责是调度统一身份认证服务IAM能力群的step，选出下一步可以执行的step
 """
 
-_group_name = "统一身份认证IAM能力群"
+_group_name = "统一身份认证服务IAM能力群"
 
 _input_format = """
 {

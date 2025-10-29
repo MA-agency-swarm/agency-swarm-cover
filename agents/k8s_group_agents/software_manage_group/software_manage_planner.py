@@ -12,9 +12,8 @@ _group_name = "软件管理能力群"
 
 _input_format = """
 {
-    "title": <任务名称>,
-    "description": <任务描述>,
-    "total_subtask_graph": <所有子任务的规划图>,
+    "title": <本次子任务的名称>,
+    "description": <本次子任务的描述>
 }
 """
 
@@ -22,6 +21,7 @@ _agents = """
 1. **software_config_modify_agent**: 负责对k8s集群中的软件配置进行修改。
 2. **software_install_agent**: 负责进行k8s集群中软件的安装。
 3. **software_monitor_agent**: 负责对k8s集群中的软件进行监控。
+4. **stress_test_agent**: 负责对k8s集群中的软件进行压力测试。
 """
 
 _output_format = """
@@ -31,7 +31,7 @@ _output_format = """
         "id": 步骤ID, 
         "agent": [agent_name_1, ...],
         "description": 步骤描述, 
-        "dep": <前置步骤ID列表>,
+        "dep": <前置步骤ID列表>
     },
     ...
 }
