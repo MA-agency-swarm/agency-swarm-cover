@@ -1482,6 +1482,19 @@ class Agency:
         result, new_context = self.capability_agents_processor(
             step=step, cap_group=cap_group, cap_agent_threads=cap_agent_threads
         )
+    def mad_test(
+            self,
+            mad_agents
+    ):
+        task_planner = mad_agents["test_task_planner"]
+        ideator = mad_agents["ideator"]
+        debators = mad_agents["debators"]
+        task_planner_thread = Thread(self.user, task_planner)
+        ideator_thread = Thread(self.user, ideator)
+        debator_threads = []
+        for debator in debators:
+            debator_threads.append(Thread(self.user, debator))
+        text = user_request
 
     def task_planning(
         self,
