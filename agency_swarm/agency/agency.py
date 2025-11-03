@@ -5,6 +5,7 @@ import queue
 import re
 import threading
 import uuid
+from collections import deque
 from datetime import datetime
 from enum import Enum
 from typing import (
@@ -1482,20 +1483,124 @@ class Agency:
         result, new_context = self.capability_agents_processor(
             step=step, cap_group=cap_group, cap_agent_threads=cap_agent_threads
         )
-    def mad_test(
+
+    def execute_task(executors, task):
+        # 执行任务，具体细节需要实现
+        task_str = json.dumps(task, ensure_ascii=False, indent=2)
+        # ...
+        return {}
+
+    def hypothesize_test(
             self,
-            mad_agents
+            user_request,
+            ideator,
+            task_planner,
+            executors,
+            verifier
     ):
-        task_planner = mad_agents["test_task_planner"]
-        ideator = mad_agents["ideator"]
-        debators = mad_agents["debators"]
         task_planner_thread = Thread(self.user, task_planner)
         ideator_thread = Thread(self.user, ideator)
+        verifier_thread = Thread(self.user, verifier)
+        executor_threads = []
+        for executor in executors:
+            executor_threads.append(Thread(self.user, executor))
+        text = user_request
+        # 1. 获取假设
+        hypo = self.json_get_completion(ideator_thread, text)
+        subtask_str = self.json_get_completion(task_planner_thread, hypo)
+        subtask = json.loads(subtask_str)
+        result = []
+        for task in subtask:
+            res = self.execute_task(executors, task)
+            result.append(res)
+        message = {
+            "hypothesis": hypo,
+            "result": result
+        }
+        ver = self.json_get_completion(verifier_thread, json.dumps(message, ensure_ascii=False, indent=2))
+        return ver
+    
+    def correlation_test(
+        self,
+        user_request,
+        experts # {name: agent}
+    ):
+        expert_threads = {}
+        description = {}
+        for name, expert in experts.items():
+            expert_threads[name] = Thread(self.user, expert)
+            description[name] = expert.instructions
+        # 输入包括所有expert的介绍；用户需求；已经获取的信息
+        # 输出结果: {"expert": 找哪个expert补充信息; "question": 具体问的问题;}
+        
+        message = {
+            "description": description,
+            "user_request": user_request,
+        }
+
+        information = {}
+        while True:
+            count = 0
+            for name in experts.keys():
+                if name not in information:
+                    information[name] = []
+                ques = message | {"information": information[name]}
+                res_str = self.json_get_completion(expert_threads[name], json.dumps(ques, ensure_ascii=False, indent=2))
+                res = json.loads(res_str)
+                if "expert" in res:
+                    ask_expert = res["expert"]
+                    question = res["question"]
+                    info = self.json_get_completion(expert_threads[ask_expert], question)
+                    information[name].append(info)
+                else:
+                    count += 1
+            if count == len(experts):
+                break
+
+    def consensus_test(
+        self,
+        user_request,
+        coordinator, 
+        debators
+    ):
+        # coordinators保证讨论轨迹
+        # coordinators返回judge: {result: debate是否合理, explanation: 解释}
+        # debator返回debate: {option: 认可度, explanation: 对option的解释, }
+        coordinator_thread = Thread(self.user, coordinator)
         debator_threads = []
+        n = len(debators)
         for debator in debators:
             debator_threads.append(Thread(self.user, debator))
-        text = user_request
-
+        debate_info = {
+            "user_request": user_request
+        }
+        # 输入：用户请求，上一位辩论者的观点和解释
+        debate = {}
+        while True:
+            count = 0
+            for debator_thread in debator_threads:
+                if debate:
+                    debate_info["option"] = debate["option"]
+                    debate_info["explanation"] = debate["explanation"]
+                review = ""
+                while True:
+                    debate_input = debate_info
+                    if review:
+                        debate_input["review"] = review
+                    debate_str = self.json_get_completion(debator_thread, json.dumps(debate_input, ensure_ascii=False, indent=2))
+                    judge_str = self.json_get_completion(coordinator_thread, debate_str)
+                    judge = json.loads(judge_str)
+                    if judge["result"].lower() == 'yes':
+                        debate = json.loads(debate_str)
+                        break
+                    review = judge["explanation"]
+                count += debate["option"]
+            # 每轮之后计算认可度总和
+            if count >= 0.5*n:
+                return True
+            if count <= -0.5*n:
+                return False
+            
     def task_planning(
         self,
         original_request: str,
