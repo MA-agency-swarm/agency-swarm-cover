@@ -5,24 +5,19 @@ from agents.tools.read_json_file.ReadJsonFile import ReadJsonFile
 _name = "coodinator"
 
 _description = """
-管理整个辩论过程，监控所有辩论者的认同度
+管理整个辩论过程，监控所有辩论者的观点
 """
 
 _output_format = """
-[
-    {
-        "task_id": <任务编号>,
-        "title": <任务标题>
-        "description": <任务描述>,
-    },
-    ...
-]
+{
+    "result"
+}
 """
 
 _instruction = f"""
-你是辩论过程的仲裁官和流程控制器。你的唯一职责是确保辩论流程按规则进行，并准确计算所有辩论者的累计认同度，以决定何时终止辩论。
+你是辩论过程的仲裁官和流程控制器。你的唯一职责是确保辩论流程按规则进行，评价每个辩论者的观点。
 
-# 注意：确保每个子任务都是原子化的
+你会接受初始假设和辩论者对该假设的观点和解释，你需要判断该辩论者的观点是否合理且准确
 
 你需要严格按照以下json格式输出：
 {_output_format}

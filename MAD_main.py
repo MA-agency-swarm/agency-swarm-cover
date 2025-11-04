@@ -1,7 +1,7 @@
 from agency_swarm import Agent, Agency
 
-from agents.MAD_agents.test_task_planner import test_task_planner
-from agents.MAD_agents.ideator import ideator
+from agents.MAD_agents.Hypothesize.test_task_planner import test_task_planner
+from agents.MAD_agents.Hypothesize.ideator import ideator
 from agents.MAD_agents.debators.debator_1 import debator_1
 from agents.MAD_agents.debators.debator_2 import debator_2
 from agents.MAD_agents.debators.debator_3 import debator_3
